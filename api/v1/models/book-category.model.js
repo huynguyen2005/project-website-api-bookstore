@@ -3,13 +3,21 @@ const slug = require('mongoose-slug-updater');
 
 mongoose.plugin(slug);
 
-const bookCategoryLevel2Schema = new mongoose.Schema({
-    title: String,
-    book_category_level1: String,
+const bookCategorySchema = new mongoose.Schema({
+    name: String,
     slug: { 
         type: String, 
-        slug: "title", 
+        slug: "name", 
         unique: true
+    },
+    parentId: {
+        type: String,
+        default: ""
+    },
+    description: String,
+    status: {
+        type: String,
+        default: "active"
     },
     createdBy: {
         account_id: String,
@@ -26,6 +34,6 @@ const bookCategoryLevel2Schema = new mongoose.Schema({
     ]
 });
 
-const BookCategoryLevel2 = mongoose.model('BookCategoryLevel2', bookCategoryLevel2Schema, "book_category_level2s");
+const BookCategory = mongoose.model('BookCategory', bookCategorySchema, "book_category");
 
-module.exports = BookCategoryLevel2;
+module.exports = BookCategory;
