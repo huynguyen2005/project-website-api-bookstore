@@ -1,23 +1,49 @@
 const Author = require("../../models/author.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
+const paginationHelper = require("../../../../helpers/pagination");
 
 // [GET] /admin/author
 module.exports.index = async (req, res) => {
+    const page = req.query.page;
     const keyword = req.query.keyword;
+    const status = req.query.status;
+    const sortKey = req.query.sortKey;
+    const sortValue = req.query.sortValue;
     const find = {};
-    if (keyword) {
-        const objectSearch = searchInforHelper(keyword);
-        find.name = objectSearch.regex;
-    }
+    const sort = {};
     try {
-        const allAuthor = await Author.find(find);
+        //Phân trang
+        const totalRecord = await Author.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
+
+        //Tìm kiếm
+        if (keyword) {
+            const objectSearch = searchInforHelper(keyword);
+            find.name = objectSearch.regex;
+        }
+
+        //Lọc theo trạng thái
+        if (status) {
+            find.status = status;
+        }
+
+        //Sắp xếp theo tiêu chí
+        if(sortKey && sortValue){
+            sort[sortKey] = sortValue;
+        }
+
+        const allAuthor = await Author.find(find).sort(sort).limit(initPagination.limitRecord).skip(initPagination.skip);
+
         if (allAuthor.length <= 0) {
             return res.status(404).json({
                 success: false,
                 message: "Không tìm thấy tác giả!"
             });
         }
-        res.json(allAuthor);
+        res.json({
+            authors: allAuthor,
+            pageTotal: initPagination.totalPage
+        });
     } catch (error) {
         res.status(500).json({
             success: false,

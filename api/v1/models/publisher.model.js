@@ -10,6 +10,10 @@ const publisherSchema = new mongoose.Schema({
         slug: "name", 
         unique: true
     },
+    status: {
+        type: String,
+        default: "active"
+    },
     createdBy: {
         account_id: String,
         createdAt: {

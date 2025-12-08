@@ -1,16 +1,29 @@
 const BookCategory = require("../../models/book-category.model");
 const categoryHelper = require("../../../../helpers/category");
 const searchInforHelper = require("../../../../helpers/searchInfor");
+const paginationHelper = require("../../../../helpers/pagination");
 
 // [GET] /admin/book-category
 module.exports.index = async (req, res) => {
+    const page = req.query.page;
     const keyword = req.query.keyword;
+    const status = req.query.status;
+    const sortKey = req.query.sortKey;
+    const sortValue = req.query.sortValue;
     const find = {};
-    if (keyword) {
-        const objectSearch = searchInforHelper(keyword);
-        find.name = objectSearch.regex;
-    }
+    const sort = {};
     try {
+        //Tìm kiếm
+        if (keyword) {
+            const objectSearch = searchInforHelper(keyword);
+            find.name = objectSearch.regex;
+        }
+
+        //Lọc theo trạng thái
+        if (status) {
+            find.status = status;
+        }
+
         const allCategory = await BookCategory.find(find);
         if (allCategory.length <= 0) {
             return res.status(404).json({
@@ -18,8 +31,8 @@ module.exports.index = async (req, res) => {
                 message: "Không tìm thấy danh mục!"
             });
         }
-        
-        if(keyword){
+
+        if (keyword || status) {
             return res.json(allCategory);
         }
         const newAllCategory = categoryHelper.createTree(allCategory);
