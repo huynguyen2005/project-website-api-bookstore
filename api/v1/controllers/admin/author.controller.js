@@ -52,19 +52,6 @@ module.exports.index = async (req, res) => {
     }
 };
 
-//[GET] /admin/author/all
-module.exports.getAll = async (req, res) => {
-    try {
-        const authors = await Author.find().select("id name");
-        res.json(authors);
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Lấy tác giả thất bại!"
-        });
-    }
-};
-
 // //[GET] /admin/author/:id
 module.exports.getAuthor = async (req, res) => {
     const authorId = req.params.id;

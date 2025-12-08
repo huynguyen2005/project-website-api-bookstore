@@ -56,19 +56,6 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/payment-method/all
-module.exports.getAll = async (req, res) => {
-    try {
-        const paymentMethods = await PaymentMethod.find().select("id name");
-        res.json(paymentMethods);
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Lấy phương thức thanh toán thất bại!"
-        });
-    }
-};
-
 // [GET] /admin/payment-method/:id
 module.exports.getPaymentMethod = async (req, res) => {
     const paymentMethodId = req.params.id;

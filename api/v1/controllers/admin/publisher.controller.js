@@ -56,19 +56,6 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/publisher/all
-module.exports.getAll = async (req, res) => {
-    try {
-        const publishers = await Publisher.find().select("id name");
-        res.json(publishers);
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Lấy nhà xuất bản thất bại!"
-        });
-    }
-};
-
 // [GET] /admin/publisher/:id
 module.exports.getPublisher = async (req, res) => {
     const publisherId = req.params.id;

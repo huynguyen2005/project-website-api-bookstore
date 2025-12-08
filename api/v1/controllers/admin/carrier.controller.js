@@ -56,19 +56,6 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/carrier/all
-module.exports.getAll = async (req, res) => {
-    try {
-        const carriers = await Carrier.find().select("id name");
-        res.json(carriers);
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Lấy đơn vị vận chuyển thất bại!"
-        });
-    }
-};
-
 // [GET] /admin/carrier/:id
 module.exports.getCarrier = async (req, res) => {
     const carrierId = req.params.id;
