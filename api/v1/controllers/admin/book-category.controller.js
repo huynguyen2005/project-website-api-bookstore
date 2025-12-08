@@ -11,7 +11,7 @@ module.exports.index = async (req, res) => {
         find.name = objectSearch.regex;
     }
     try {
-        const allCategory = await BookCategory.find(find).select("id name parentId status");
+        const allCategory = await BookCategory.find(find);
         if (allCategory.length <= 0) {
             return res.status(404).json({
                 success: false,
@@ -73,12 +73,12 @@ module.exports.createCategory = async (req, res) => {
         bookCategory.save();
         res.json({
             success: true,
-            message: "Tạo danh mục sách thành công!"
+            message: "Thêm danh mục sách thành công!"
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Tạo danh mục sách thất bại!"
+            message: "Thêm danh mục sách thất bại!"
         });
     }
 };

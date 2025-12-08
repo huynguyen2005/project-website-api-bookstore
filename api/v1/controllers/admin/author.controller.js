@@ -1,0 +1,131 @@
+const Author = require("../../models/author.model");
+const searchInforHelper = require("../../../../helpers/searchInfor");
+
+// [GET] /admin/author
+module.exports.index = async (req, res) => {
+    const keyword = req.query.keyword;
+    const find = {};
+    if (keyword) {
+        const objectSearch = searchInforHelper(keyword);
+        find.name = objectSearch.regex;
+    }
+    try {
+        const allAuthor = await Author.find(find);
+        if (allAuthor.length <= 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Không tìm thấy tác giả!"
+            });
+        }
+        res.json(allAuthor);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Lấy tác giả thất bại!"
+        });
+    }
+};
+
+//[GET] /admin/author/all
+module.exports.getAll = async (req, res) => {
+    try {
+        const authors = await Author.find().select("id name");
+        res.json(authors);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Lấy tác giả thất bại!"
+        });
+    }
+};
+
+// //[GET] /admin/author/:id
+module.exports.getAuthor = async (req, res) => {
+    const authorId = req.params.id;
+    try {
+        const author = await Author.findById(authorId);
+        if (!author) {
+            return res.status(404).json({
+                success: false,
+                message: "Tác giả không tồn tại!"
+            });
+        }
+        res.json(author);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Lấy tác giả thất bại!"
+        });
+    }
+};
+
+//[POST] /admin/author/create
+module.exports.createAuthor = async (req, res) => {
+    const data = req.body;
+    try {
+        const author = new Author(data);
+        author.save();
+        res.json({
+            success: true,
+            message: "Thêm tác giả thành công!"
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Thêm tác giả thất bại!"
+        });
+    }
+};
+
+//[PUT] /admin/author/edit/:id
+module.exports.editAuthor = async (req, res) => {
+    const authorId = req.params.id;
+    const data = req.body;
+    try {
+        const author = await Author.findById(authorId);
+        if (!author) {
+            return res.status(404).json({
+                success: false,
+                message: "Tác giả không tồn tại!"
+            });
+        }
+        await Author.updateOne({ _id: authorId }, data);
+        res.json({
+            success: true,
+            message: "Cập nhật tác giả thành công!"
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Cập nhật tác giả thất bại!"
+        });
+    }
+};
+
+
+// [DELETE] /admin/book-category/delete/:id
+module.exports.deleteAuthor = async (req, res) => {
+    const authorId = req.params.id;
+    try {
+        const author = await Author.findById(authorId);
+        if (!author) {
+            return res.status(404).json({
+                success: false,
+                message: "Tác giả không tồn tại!"
+            });
+        }
+
+        await Author.deleteOne({ _id: authorId });
+        res.json({
+            success: true,
+            message: "Xóa tác giả thành công!"
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Xóa tác giả thất bại!"
+        });
+    }
+};
+
+
