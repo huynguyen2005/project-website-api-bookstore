@@ -1,8 +1,8 @@
-const Publisher = require("../../models/publisher.model");
+const Carrier = require("../../models/carrier.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /admin/publisher
+// [GET] /admin/carrier
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -13,7 +13,7 @@ module.exports.index = async (req, res) => {
     const sort = {};
     try {
         // Phân trang
-        const totalRecord = await Publisher.countDocuments(find);
+        const totalRecord = await Carrier.countDocuments(find);
         const initPagination = paginationHelper(totalRecord, page);
 
         // Tìm kiếm
@@ -32,131 +32,131 @@ module.exports.index = async (req, res) => {
             sort[sortKey] = sortValue;
         }
 
-        const allPublisher = await Publisher.find(find)
+        const allCarrier = await Carrier.find(find)
             .sort(sort)
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
 
-        if (allPublisher.length <= 0) {
+        if (allCarrier.length <= 0) {
             return res.status(404).json({
                 success: false,
-                message: "Không tìm thấy nhà xuất bản!"
+                message: "Không tìm thấy đơn vị vận chuyển!"
             });
         }
 
         res.json({
-            publishers: allPublisher,
+            carriers: allCarrier,
             pageTotal: initPagination.totalPage
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Lấy nhà xuất bản thất bại!"
+            message: "Lấy đơn vị vận chuyển thất bại!"
         });
     }
 };
 
-// [GET] /admin/publisher/all
+// [GET] /admin/carrier/all
 module.exports.getAll = async (req, res) => {
     try {
-        const publishers = await Publisher.find().select("id name");
-        res.json(publishers);
+        const carriers = await Carrier.find().select("id name");
+        res.json(carriers);
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Lấy nhà xuất bản thất bại!"
+            message: "Lấy đơn vị vận chuyển thất bại!"
         });
     }
 };
 
-// [GET] /admin/publisher/:id
-module.exports.getPublisher = async (req, res) => {
-    const publisherId = req.params.id;
+// [GET] /admin/carrier/:id
+module.exports.getCarrier = async (req, res) => {
+    const carrierId = req.params.id;
     try {
-        const publisher = await Publisher.findById(publisherId);
-        if (!publisher) {
+        const carrier = await Carrier.findById(carrierId);
+        if (!carrier) {
             return res.status(404).json({
                 success: false,
-                message: "Nhà xuất bản không tồn tại!"
+                message: "Đơn vị vận chuyển không tồn tại!"
             });
         }
-        res.json(publisher);
+        res.json(carrier);
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Lấy nhà xuất bản thất bại!"
+            message: "Lấy đơn vị vận chuyển thất bại!"
         });
     }
 };
 
-// [POST] /admin/publisher/create
-module.exports.createPublisher = async (req, res) => {
+// [POST] /admin/carrier/create
+module.exports.createCarrier = async (req, res) => {
     const data = req.body;
     try {
-        if (!data.position) {
-            data.position = await Publisher.countDocuments() + 1;
+        if(!data.position){
+            data.position = await Carrier.countDocuments() + 1;
         }
-        const publisher = new Publisher(data);
-        await publisher.save();
+        const carrier = new Carrier(data);
+        await carrier.save();
         res.json({
             success: true,
-            message: "Thêm nhà xuất bản thành công!"
+            message: "Thêm đơn vị vận chuyển thành công!"
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Thêm nhà xuất bản thất bại!"
+            message: "Thêm đơn vị vận chuyển thất bại!"
         });
     }
 };
 
-// [PUT] /admin/publisher/edit/:id
-module.exports.editPublisher = async (req, res) => {
-    const publisherId = req.params.id;
+// [PUT] /admin/carrier/edit/:id
+module.exports.editCarrier = async (req, res) => {
+    const carrierId = req.params.id;
     const data = req.body;
     try {
-        const publisher = await Publisher.findById(publisherId);
-        if (!publisher) {
+        const carrier = await Carrier.findById(carrierId);
+        if (!carrier) {
             return res.status(404).json({
                 success: false,
-                message: "Nhà xuất bản không tồn tại!"
+                message: "Đơn vị vận chuyển không tồn tại!"
             });
         }
 
-        await Publisher.updateOne({ _id: publisherId }, data);
+        await Carrier.updateOne({ _id: carrierId }, data);
         res.json({
             success: true,
-            message: "Cập nhật nhà xuất bản thành công!"
+            message: "Cập nhật đơn vị vận chuyển thành công!"
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Cập nhật nhà xuất bản thất bại!"
+            message: "Cập nhật đơn vị vận chuyển thất bại!"
         });
     }
 };
 
-// [DELETE] /admin/publisher/delete/:id
-module.exports.deletePublisher = async (req, res) => {
-    const publisherId = req.params.id;
+// [DELETE] /admin/carrier/delete/:id
+module.exports.deleteCarrier = async (req, res) => {
+    const carrierId = req.params.id;
     try {
-        const publisher = await Publisher.findById(publisherId);
-        if (!publisher) {
+        const carrier = await Carrier.findById(carrierId);
+        if (!carrier) {
             return res.status(404).json({
                 success: false,
-                message: "Nhà xuất bản không tồn tại!"
+                message: "Đơn vị vận chuyển không tồn tại!"
             });
         }
 
-        await Publisher.deleteOne({ _id: publisherId });
+        await Carrier.deleteOne({ _id: carrierId });
         res.json({
             success: true,
-            message: "Xóa nhà xuất bản thành công!"
+            message: "Xóa đơn vị vận chuyển thành công!"
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Xóa nhà xuất bản thất bại!"
+            message: "Xóa đơn vị vận chuyển thất bại!"
         });
     }
 };

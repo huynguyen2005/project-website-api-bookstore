@@ -93,6 +93,9 @@ module.exports.getPaymentMethod = async (req, res) => {
 module.exports.createPaymentMethod = async (req, res) => {
     const data = req.body;
     try {
+        if (!data.position) {
+            data.position = await PaymentMethod.countDocuments() + 1;
+        }
         const paymentMethod = new PaymentMethod(data);
         await paymentMethod.save();
         res.json({

@@ -28,7 +28,7 @@ module.exports.index = async (req, res) => {
         }
 
         //Sắp xếp theo tiêu chí
-        if(sortKey && sortValue){
+        if (sortKey && sortValue) {
             sort[sortKey] = sortValue;
         }
 
@@ -89,6 +89,9 @@ module.exports.getAuthor = async (req, res) => {
 module.exports.createAuthor = async (req, res) => {
     const data = req.body;
     try {
+        if (!data.position) {
+            data.position = await Author.countDocuments() + 1;
+        }
         const author = new Author(data);
         author.save();
         res.json({

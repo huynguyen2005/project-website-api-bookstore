@@ -82,6 +82,9 @@ module.exports.getCategory = async (req, res) => {
 module.exports.createCategory = async (req, res) => {
     const data = req.body;
     try {
+        if (!data.position) {
+            data.position = await BookCategory.countDocuments() + 1;
+        }
         const bookCategory = new BookCategory(data);
         bookCategory.save();
         res.json({
