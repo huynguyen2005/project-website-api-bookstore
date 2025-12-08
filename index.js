@@ -10,6 +10,7 @@ const routesClientApiVer1 = require('./api/v1/routes/client/index.route');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const cloudinary = require('cloudinary').v2;
 
 // parse application/json
 app.use(bodyParser.json());
