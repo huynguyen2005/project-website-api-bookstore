@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 const paymentMethodSchema = new mongoose.Schema({
     name: String,
+    status: {
+        type: String,
+        default: "active"
+    },
+    position: Number,
     createdBy: {
         account_id: String,
         createdAt: {

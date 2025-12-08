@@ -8,7 +8,11 @@ const blogSchema = new mongoose.Schema(
         title: String,
         content: String,
         thumbnail: String,
-        status: String,
+        status: {
+            type: String,
+            default: "active"
+        },
+        position: Number,
         slug: {
             type: String,
             slug: "title",

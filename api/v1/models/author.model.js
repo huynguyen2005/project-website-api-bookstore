@@ -7,6 +7,7 @@ const authorSchema = new mongoose.Schema({
     name: String,
     age: Number, 
     gender: String,
+    position: Number,
     slug: { 
         type: String, 
         slug: "name", 

@@ -10,6 +10,7 @@ const publisherSchema = new mongoose.Schema({
         slug: "name", 
         unique: true
     },
+    position: Number,
     status: {
         type: String,
         default: "active"

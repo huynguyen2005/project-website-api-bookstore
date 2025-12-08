@@ -19,6 +19,7 @@ const bookCategorySchema = new mongoose.Schema({
         type: String,
         default: "active"
     },
+    position: Number,
     createdBy: {
         account_id: String,
         createdAt: {
