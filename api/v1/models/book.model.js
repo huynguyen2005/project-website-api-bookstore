@@ -14,19 +14,44 @@ const bookSchema = new mongoose.Schema({
     stockQuantity: Number,
     images: [String],
     thumbnail: String,
-    publisher_id: String,
-    distributor_id: String,
-    book_category_level2_id: String,
+    distributor_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Distributor"
+    },
+    publisher_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Publisher"
+    },
+    book_category_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "BookCategory"
+    },
+    authors_id: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Author"
+        }
+    ],
+    cover_type_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "CoverType"
+    },
     position: Number,
-    status: String,
+    status: {
+        type: String,
+        default: "active"
+    },
     discountPercent: Number,
-    slug: { 
-        type: String, 
-        slug: "title", 
+    slug: {
+        type: String,
+        slug: "title",
         unique: true
     },
     createdBy: {
-        account_id: String,
+        account_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Account"
+        },
         createdAt: {
             type: Date,
             default: Date.now
@@ -34,7 +59,10 @@ const bookSchema = new mongoose.Schema({
     },
     updatedBy: [
         {
-            account_id: String,
+            account_id: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Account"
+            },
             updatedAt: Date
         }
     ]

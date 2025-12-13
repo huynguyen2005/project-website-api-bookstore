@@ -46,7 +46,7 @@ module.exports.index = async (req, res) => {
 };
 
 //[GET] /admin/book-category/all
-module.exports.getAll = async (req, res) => {
+module.exports.getListCategory = async (req, res) => {
     try {
         const categories = await BookCategory.find().select("id name");
         res.json(categories);
@@ -85,6 +85,12 @@ module.exports.createCategory = async (req, res) => {
         if (!data.position) {
             data.position = await BookCategory.countDocuments() + 1;
         }
+
+        const createdBy = {
+            account_id: req.accountId
+        };
+        data.createdBy = createdBy;
+
         const bookCategory = new BookCategory(data);
         bookCategory.save();
         res.json({
@@ -111,7 +117,15 @@ module.exports.editCategory = async (req, res) => {
                 message: "Danh mục không tồn tại!"
             });
         }
-        await BookCategory.updateOne({ _id: categoryId }, data);
+        await BookCategory.updateOne({ _id: categoryId }, {
+            ...data,
+            $push: {
+                updatedBy: {
+                    account_id: req.accountId,
+                    updatedAt: Date.now()
+                }
+            }
+        });
         res.json({
             success: true,
             message: "Cập nhật danh mục sách thành công!"

@@ -1,24 +1,18 @@
 const mongoose = require('mongoose');
-const slug = require('mongoose-slug-updater');
-
-mongoose.plugin(slug);
 
 const authorSchema = new mongoose.Schema({
     name: String,
-    age: Number, 
-    gender: String,
     position: Number,
-    slug: { 
-        type: String, 
-        slug: "name", 
-        unique: true
-    },
+    description: String,
     status: {
         type: String,
         default: "active"
     },
     createdBy: {
-        account_id: String,
+        account_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Account"
+        },
         createdAt: {
             type: Date,
             default: Date.now
@@ -26,7 +20,10 @@ const authorSchema = new mongoose.Schema({
     },
     updatedBy: [
         {
-            account_id: String,
+            account_id: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Account"
+            },
             updatedAt: Date
         }
     ]

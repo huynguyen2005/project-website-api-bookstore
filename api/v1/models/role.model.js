@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const roleSchema = new mongoose.Schema({
-    name: String, 
+    name: String,
     description: String,
     position: Number,
     permissions: {
@@ -9,7 +9,10 @@ const roleSchema = new mongoose.Schema({
         default: []
     },
     createdBy: {
-        account_id: String,
+        account_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Account"
+        },
         createdAt: {
             type: Date,
             default: Date.now
@@ -17,12 +20,15 @@ const roleSchema = new mongoose.Schema({
     },
     updatedBy: [
         {
-            account_id: String,
+            account_id: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Account"
+            },
             updatedAt: Date
         }
     ]
-}); 
+});
 
-const Role = mongoose.model('Role', roleSchema, "role"); 
+const Role = mongoose.model('Role', roleSchema, "role");
 
 module.exports = Role;

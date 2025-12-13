@@ -5,9 +5,9 @@ mongoose.plugin(slug);
 
 const bookCategorySchema = new mongoose.Schema({
     name: String,
-    slug: { 
-        type: String, 
-        slug: "name", 
+    slug: {
+        type: String,
+        slug: "name",
         unique: true
     },
     parentId: {
@@ -21,7 +21,10 @@ const bookCategorySchema = new mongoose.Schema({
     },
     position: Number,
     createdBy: {
-        account_id: String,
+        account_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Account"
+        },
         createdAt: {
             type: Date,
             default: Date.now
@@ -29,7 +32,10 @@ const bookCategorySchema = new mongoose.Schema({
     },
     updatedBy: [
         {
-            account_id: String,
+            account_id: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Account"
+            },
             updatedAt: Date
         }
     ]

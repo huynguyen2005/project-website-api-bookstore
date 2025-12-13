@@ -3,7 +3,7 @@ const router = express.Router();
 const controller = require("../../controllers/admin/book-category.controller");
 
 router.get("/", controller.index);
-router.get("/all", controller.getAll);
+router.get("/list", controller.getListCategory);
 router.post("/create", controller.createCategory);
 router.get("/:id", controller.getCategory);
 router.put("/edit/:id", controller.editCategory);

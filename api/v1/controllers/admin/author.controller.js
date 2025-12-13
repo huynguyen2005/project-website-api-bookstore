@@ -52,6 +52,19 @@ module.exports.index = async (req, res) => {
     }
 };
 
+// [GET] /admin/author/list
+module.exports.getListAuthor = async (req, res) => {
+    try {
+        const authors = await Author.find().select("id name");
+        res.json(authors);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Lấy danh sách tác giả thất bại!"
+        });
+    }
+}
+
 // //[GET] /admin/author/:id
 module.exports.getAuthor = async (req, res) => {
     const authorId = req.params.id;
@@ -79,6 +92,12 @@ module.exports.createAuthor = async (req, res) => {
         if (!data.position) {
             data.position = await Author.countDocuments() + 1;
         }
+        
+        const createdBy = {
+            account_id: req.accountId
+        };
+        data.createdBy = createdBy;
+
         const author = new Author(data);
         author.save();
         res.json({
@@ -105,7 +124,15 @@ module.exports.editAuthor = async (req, res) => {
                 message: "Tác giả không tồn tại!"
             });
         }
-        await Author.updateOne({ _id: authorId }, data);
+        await Author.updateOne({ _id: authorId }, {
+            ...data,
+            $push: {
+                updatedBy: {
+                    account_id: req.accountId,
+                    updatedAt: Date.now()
+                }
+            }
+        });
         res.json({
             success: true,
             message: "Cập nhật tác giả thành công!"

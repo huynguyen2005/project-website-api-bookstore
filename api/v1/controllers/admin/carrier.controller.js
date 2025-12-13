@@ -83,6 +83,12 @@ module.exports.createCarrier = async (req, res) => {
         if(!data.position){
             data.position = await Carrier.countDocuments() + 1;
         }
+
+        const createdBy = {
+            account_id: req.accountId
+        };
+        data.createdBy = createdBy;
+
         const carrier = new Carrier(data);
         await carrier.save();
         res.json({
@@ -110,7 +116,15 @@ module.exports.editCarrier = async (req, res) => {
             });
         }
 
-        await Carrier.updateOne({ _id: carrierId }, data);
+        await Carrier.updateOne({ _id: carrierId }, {
+            ...data,
+            $push: {
+                updatedBy: {
+                    account_id: req.accountId,
+                    updatedAt: Date.now()
+                }
+            }
+        });
         res.json({
             success: true,
             message: "Cập nhật đơn vị vận chuyển thành công!"

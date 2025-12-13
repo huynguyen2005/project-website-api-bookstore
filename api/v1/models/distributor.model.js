@@ -1,18 +1,13 @@
 const mongoose = require('mongoose');
 
-const accountSchema = new mongoose.Schema({
-    email: String,
-    fullName: String,
-    password: String,
-    phone: String,
-    address: String,
-    birthday: String,
-    avatar: String,
-    role_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Role"
+const distributorSchema = new mongoose.Schema({
+    name: String,
+    description: String,
+    position: Number,
+    status: {
+        type: String,
+        default: "active"
     },
-    status: String,
     createdBy: {
         account_id: {
             type: mongoose.Schema.Types.ObjectId,
@@ -34,6 +29,6 @@ const accountSchema = new mongoose.Schema({
     ]
 });
 
-const Account = mongoose.model('Account', accountSchema, "accounts");
+const Distributor = mongoose.model('Distributor', distributorSchema, "distributors");
 
-module.exports = Account;
+module.exports = Distributor;

@@ -10,10 +10,10 @@ const routesClientApiVer1 = require('./api/v1/routes/client/index.route');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const cloudinary = require('cloudinary').v2;
 
 // parse application/json
-app.use(bodyParser.json());
+app.use(express.json()); //for json
+app.use(express.urlencoded({extended: true})); //for form data
 
 //dùng cors để chia sẻ tài nguyên chéo nhau giữa fe vs be khi code theo hướng api
 app.use(cors());

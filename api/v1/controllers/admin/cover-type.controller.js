@@ -1,100 +1,98 @@
-const Publisher = require("../../models/publisher.model");
+const CoverType = require("../../models/cover-type.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /admin/publisher
+// [GET] /admin/cover-type
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
     const status = req.query.status;
     const sortKey = req.query.sortKey;
     const sortValue = req.query.sortValue;
+
     const find = {};
     const sort = {};
+
     try {
-        // Phân trang
-        const totalRecord = await Publisher.countDocuments(find);
+        const totalRecord = await CoverType.countDocuments(find);
         const initPagination = paginationHelper(totalRecord, page);
 
-        // Tìm kiếm
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
             find.name = objectSearch.regex;
         }
 
-        // Lọc theo trạng thái
         if (status) {
             find.status = status;
         }
 
-        // Sắp xếp theo tiêu chí
         if (sortKey && sortValue) {
             sort[sortKey] = sortValue;
         }
 
-        const allPublisher = await Publisher.find(find)
+        const allCoverType = await CoverType.find(find)
             .sort(sort)
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
 
-        if (allPublisher.length <= 0) {
+        if (allCoverType.length <= 0) {
             return res.status(404).json({
                 success: false,
-                message: "Không tìm thấy nhà xuất bản!"
+                message: "Không tìm thấy loại bìa!"
             });
         }
 
         res.json({
-            publishers: allPublisher,
+            coverTypes: allCoverType,
             pageTotal: initPagination.totalPage
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Lấy nhà xuất bản thất bại!"
+            message: "Lấy loại bìa thất bại!"
         });
     }
 };
 
-// [GET] /admin/publisher/list
-module.exports.getListPublisher = async (req, res) => {
+// [GET] /admin/cover-type/list
+module.exports.getListCoverType = async (req, res) => {
     try {
-        const publishers = await Publisher.find().select("id name");
-        res.json(publishers);
+        const coverTypes = await CoverType.find().select("id name");
+        res.json(coverTypes);
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Lấy danh sách nhà xuất bản thất bại!"
+            message: "Lấy danh sách loại bìa thất bại!"
         });
     }
 }
 
-// [GET] /admin/publisher/:id
-module.exports.getPublisher = async (req, res) => {
-    const publisherId = req.params.id;
+// [GET] /admin/cover-type/:id
+module.exports.getCoverType = async (req, res) => {
+    const coverTypeId = req.params.id;
     try {
-        const publisher = await Publisher.findById(publisherId);
-        if (!publisher) {
+        const coverType = await CoverType.findById(coverTypeId);
+        if (!coverType) {
             return res.status(404).json({
                 success: false,
-                message: "Nhà xuất bản không tồn tại!"
+                message: "Loại bìa không tồn tại!"
             });
         }
-        res.json(publisher);
+        res.json(coverType);
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Lấy nhà xuất bản thất bại!"
+            message: "Lấy loại bìa thất bại!"
         });
     }
 };
 
-// [POST] /admin/publisher/create
-module.exports.createPublisher = async (req, res) => {
+// [POST] /admin/cover-type/create
+module.exports.createCoverType = async (req, res) => {
     const data = req.body;
     try {
         if (!data.position) {
-            data.position = await Publisher.countDocuments() + 1;
+            data.position = await CoverType.countDocuments() + 1;
         }
 
         const createdBy = {
@@ -102,34 +100,36 @@ module.exports.createPublisher = async (req, res) => {
         };
         data.createdBy = createdBy;
 
-        const publisher = new Publisher(data);
-        await publisher.save();
+        const coverType = new CoverType(data);
+        await coverType.save();
+
         res.json({
             success: true,
-            message: "Thêm nhà xuất bản thành công!"
+            message: "Thêm loại bìa thành công!"
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Thêm nhà xuất bản thất bại!"
+            message: "Thêm loại bìa thất bại!"
         });
     }
 };
 
-// [PUT] /admin/publisher/edit/:id
-module.exports.editPublisher = async (req, res) => {
-    const publisherId = req.params.id;
+// [PUT] /admin/cover-type/edit/:id
+module.exports.editCoverType = async (req, res) => {
+    const coverTypeId = req.params.id;
     const data = req.body;
+
     try {
-        const publisher = await Publisher.findById(publisherId);
-        if (!publisher) {
+        const coverType = await CoverType.findById(coverTypeId);
+        if (!coverType) {
             return res.status(404).json({
                 success: false,
-                message: "Nhà xuất bản không tồn tại!"
+                message: "Loại bìa không tồn tại!"
             });
         }
 
-        await Publisher.updateOne({ _id: publisherId }, {
+        await CoverType.updateOne({ _id: coverTypeId }, {
             ...data,
             $push: {
                 updatedBy: {
@@ -140,37 +140,38 @@ module.exports.editPublisher = async (req, res) => {
         });
         res.json({
             success: true,
-            message: "Cập nhật nhà xuất bản thành công!"
+            message: "Cập nhật loại bìa thành công!"
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Cập nhật nhà xuất bản thất bại!"
+            message: "Cập nhật loại bìa thất bại!"
         });
     }
 };
 
-// [DELETE] /admin/publisher/delete/:id
-module.exports.deletePublisher = async (req, res) => {
-    const publisherId = req.params.id;
+// [DELETE] /admin/cover-type/delete/:id
+module.exports.deleteCoverType = async (req, res) => {
+    const coverTypeId = req.params.id;
+
     try {
-        const publisher = await Publisher.findById(publisherId);
-        if (!publisher) {
+        const coverType = await CoverType.findById(coverTypeId);
+        if (!coverType) {
             return res.status(404).json({
                 success: false,
-                message: "Nhà xuất bản không tồn tại!"
+                message: "Loại bìa không tồn tại!"
             });
         }
 
-        await Publisher.deleteOne({ _id: publisherId });
+        await CoverType.deleteOne({ _id: coverTypeId });
         res.json({
             success: true,
-            message: "Xóa nhà xuất bản thành công!"
+            message: "Xóa loại bìa thành công!"
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Xóa nhà xuất bản thất bại!"
+            message: "Xóa loại bìa thất bại!"
         });
     }
 };

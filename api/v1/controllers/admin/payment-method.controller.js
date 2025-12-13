@@ -83,6 +83,12 @@ module.exports.createPaymentMethod = async (req, res) => {
         if (!data.position) {
             data.position = await PaymentMethod.countDocuments() + 1;
         }
+
+        const createdBy = {
+            account_id: req.accountId
+        };
+        data.createdBy = createdBy;
+
         const paymentMethod = new PaymentMethod(data);
         await paymentMethod.save();
         res.json({
@@ -110,7 +116,15 @@ module.exports.editPaymentMethod = async (req, res) => {
             });
         }
 
-        await PaymentMethod.updateOne({ _id: paymentMethodId }, data);
+        await PaymentMethod.updateOne({ _id: paymentMethodId }, {
+            ...data,
+            $push: {
+                updatedBy: {
+                    account_id: req.accountId,
+                    updatedAt: Date.now()
+                }
+            }
+        });
         res.json({
             success: true,
             message: "Cập nhật phương thức thanh toán thành công!"

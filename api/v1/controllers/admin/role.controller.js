@@ -52,6 +52,19 @@ module.exports.index = async (req, res) => {
     }
 };
 
+//[GET] /admin/role/list
+module.exports.getListRole = async (req, res) => {
+    try {
+        const roles = await Role.find().select("id name");
+        res.json(roles);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Lấy danh sách vai trò thất bại!"
+        });
+    }
+}
+
 // [GET] /admin/role/:id
 module.exports.getRole = async (req, res) => {
     const roleId = req.params.id;
@@ -79,6 +92,12 @@ module.exports.createRole = async (req, res) => {
         if (!data.position) {
             data.position = await Role.countDocuments() + 1;
         }
+
+        const createdBy = {
+            account_id: req.accountId
+        };
+        data.createdBy = createdBy;
+
         const role = new Role(data);
         await role.save();
         res.json({
@@ -106,7 +125,15 @@ module.exports.editRole = async (req, res) => {
             });
         }
 
-        await Role.updateOne({ _id: roleId }, data);
+        await Role.updateOne({ _id: roleId }, {
+            ...data,
+            $push: {
+                updatedBy: {
+                    account_id: req.accountId,
+                    updatedAt: Date.now()
+                }
+            }
+        });
         res.json({
             success: true,
             message: "Cập nhật vai trò thành công!"
@@ -150,7 +177,14 @@ module.exports.editPermission = async (req, res) => {
     try {
         for (const data of datas) {
             await Role.updateOne({ _id: data.id }, {
-                permissions: data.permissions
+                permissions: data.permissions,
+                ...data,
+                $push: {
+                    updatedBy: {
+                        account_id: req.accountId,
+                        updatedAt: Date.now()
+                    }
+                }
             });
         }
         res.json({

@@ -1,5 +1,6 @@
 module.exports.index = (req, res) => {
+    const user = req.user;
     res.json({
-        message: "OK"
+        user
     });
 }

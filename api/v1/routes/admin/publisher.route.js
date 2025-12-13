@@ -3,6 +3,7 @@ const router = express.Router();
 const controller = require("../../controllers/admin/publisher.controller");
 
 router.get("/", controller.index);
+router.get("/list", controller.getListPublisher);
 router.post("/create", controller.createPublisher);
 router.get("/:id", controller.getPublisher);
 router.put("/edit/:id", controller.editPublisher);

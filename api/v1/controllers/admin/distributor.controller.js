@@ -1,8 +1,8 @@
-const Publisher = require("../../models/publisher.model");
+const Distributor = require("../../models/distributor.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /admin/publisher
+// [GET] /admin/distributor
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -12,89 +12,85 @@ module.exports.index = async (req, res) => {
     const find = {};
     const sort = {};
     try {
-        // Phân trang
-        const totalRecord = await Publisher.countDocuments(find);
+        const totalRecord = await Distributor.countDocuments(find);
         const initPagination = paginationHelper(totalRecord, page);
 
-        // Tìm kiếm
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
             find.name = objectSearch.regex;
         }
 
-        // Lọc theo trạng thái
         if (status) {
             find.status = status;
         }
 
-        // Sắp xếp theo tiêu chí
         if (sortKey && sortValue) {
             sort[sortKey] = sortValue;
         }
 
-        const allPublisher = await Publisher.find(find)
+        const allDistributor = await Distributor.find(find)
             .sort(sort)
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
 
-        if (allPublisher.length <= 0) {
+        if (allDistributor.length <= 0) {
             return res.status(404).json({
                 success: false,
-                message: "Không tìm thấy nhà xuất bản!"
+                message: "Không tìm thấy nhà phân phối!"
             });
         }
 
         res.json({
-            publishers: allPublisher,
+            distributors: allDistributor,
             pageTotal: initPagination.totalPage
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Lấy nhà xuất bản thất bại!"
+            message: "Lấy nhà phân phối thất bại!"
         });
     }
 };
 
-// [GET] /admin/publisher/list
-module.exports.getListPublisher = async (req, res) => {
+// [GET] /admin/distributor/list
+module.exports.getListDistributor = async (req, res) => {
     try {
-        const publishers = await Publisher.find().select("id name");
-        res.json(publishers);
+        const distributors = await Distributor.find().select("id name");
+        res.json(distributors);
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Lấy danh sách nhà xuất bản thất bại!"
+            message: "Lấy danh sách nhà phân phối thất bại!"
         });
     }
 }
 
-// [GET] /admin/publisher/:id
-module.exports.getPublisher = async (req, res) => {
-    const publisherId = req.params.id;
+// [GET] /admin/distributor/:id
+module.exports.getDistributor = async (req, res) => {
+    const DistributorId = req.params.id;
     try {
-        const publisher = await Publisher.findById(publisherId);
-        if (!publisher) {
+        const distributor = await Distributor.findById(DistributorId);
+        if (!distributor) {
             return res.status(404).json({
                 success: false,
-                message: "Nhà xuất bản không tồn tại!"
+                message: "Nhà phân phối không tồn tại!"
             });
         }
-        res.json(publisher);
+        res.json(distributor);
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Lấy nhà xuất bản thất bại!"
+            message: "Lấy nhà phân phối thất bại!"
         });
     }
 };
 
-// [POST] /admin/publisher/create
-module.exports.createPublisher = async (req, res) => {
+// [POST] /admin/distributor/create
+module.exports.createDistributor = async (req, res) => {
     const data = req.body;
     try {
         if (!data.position) {
-            data.position = await Publisher.countDocuments() + 1;
+            data.position = await Distributor.countDocuments() + 1;
         }
 
         const createdBy = {
@@ -102,34 +98,34 @@ module.exports.createPublisher = async (req, res) => {
         };
         data.createdBy = createdBy;
 
-        const publisher = new Publisher(data);
-        await publisher.save();
+        const distributor = new Distributor(data);
+        await distributor.save();
         res.json({
             success: true,
-            message: "Thêm nhà xuất bản thành công!"
+            message: "Thêm nhà phân phối thành công!"
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Thêm nhà xuất bản thất bại!"
+            message: "Thêm nhà phân phối thất bại!"
         });
     }
 };
 
-// [PUT] /admin/publisher/edit/:id
-module.exports.editPublisher = async (req, res) => {
-    const publisherId = req.params.id;
+// [PUT] /admin/distributor/edit/:id
+module.exports.editDistributor = async (req, res) => {
+    const distributorId = req.params.id;
     const data = req.body;
     try {
-        const publisher = await Publisher.findById(publisherId);
-        if (!publisher) {
+        const distributor = await Distributor.findById(distributorId);
+        if (!distributor) {
             return res.status(404).json({
                 success: false,
-                message: "Nhà xuất bản không tồn tại!"
+                message: "Nhà phân phối không tồn tại!"
             });
         }
 
-        await Publisher.updateOne({ _id: publisherId }, {
+        await Distributor.updateOne({ _id: distributorId }, {
             ...data,
             $push: {
                 updatedBy: {
@@ -140,37 +136,37 @@ module.exports.editPublisher = async (req, res) => {
         });
         res.json({
             success: true,
-            message: "Cập nhật nhà xuất bản thành công!"
+            message: "Cập nhật nhà phân phối thành công!"
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Cập nhật nhà xuất bản thất bại!"
+            message: "Cập nhật nhà phân phối thất bại!"
         });
     }
 };
 
-// [DELETE] /admin/publisher/delete/:id
-module.exports.deletePublisher = async (req, res) => {
-    const publisherId = req.params.id;
+// [DELETE] /admin/distributor/delete/:id
+module.exports.deleteDistributor = async (req, res) => {
+    const distributorId = req.params.id;
     try {
-        const publisher = await Publisher.findById(publisherId);
-        if (!publisher) {
+        const distributor = await Distributor.findById(distributorId);
+        if (!distributor) {
             return res.status(404).json({
                 success: false,
-                message: "Nhà xuất bản không tồn tại!"
+                message: "Nhà phân phối không tồn tại!"
             });
         }
 
-        await Publisher.deleteOne({ _id: publisherId });
+        await Distributor.deleteOne({ _id: distributorId });
         res.json({
             success: true,
-            message: "Xóa nhà xuất bản thành công!"
+            message: "Xóa nhà phân phối thành công!"
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Xóa nhà xuất bản thất bại!"
+            message: "Xóa nhà phân phối thất bại!"
         });
     }
 };

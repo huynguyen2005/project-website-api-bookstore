@@ -18,24 +18,22 @@ const blogSchema = new mongoose.Schema(
             slug: "title",
             unique: true
         },
-        deleted: {
-            type: Boolean,
-            default: false
-        },
         createdBy: {
-            account_id: String,
+            account_id: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Account"
+            },
             createdAt: {
                 type: Date,
                 default: Date.now
             }
         },
-        deletedBy: {
-            account_id: String,
-            deletedAt: Date
-        },
         updatedBy: [
             {
-                account_id: String,
+                account_id: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Account"
+                },
                 updatedAt: Date
             }
         ]

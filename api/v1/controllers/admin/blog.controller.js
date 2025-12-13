@@ -1,7 +1,7 @@
 const Blog = require("../../models/blog.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
-const uploadToCloudinaryHelper = require("../../../../helpers/uploadToCloudinary")
+const uploadToCloudinaryHelper = require("../../../../helpers/uploadToCloudinary");
 
 // [GET] /admin/blog
 module.exports.index = async (req, res) => {
@@ -81,13 +81,19 @@ module.exports.getBlog = async (req, res) => {
 module.exports.createBlog = async (req, res) => {
     const data = req.body;
     try {
-        if(data.file){
-            const result = await uploadToCloudinaryHelper.uploader.upload(data.file);
+        if(data.thumbnail){
+            const result = await uploadToCloudinaryHelper.uploader.upload(data.thumbnail);
             data.thumbnail = result.secure_url;
         }
         if (!data.position) {
             data.position = await Blog.countDocuments() + 1;
         }
+
+        const createdBy = {
+            account_id: req.accountId
+        };
+        data.createdBy = createdBy;
+
         const blog = new Blog(data);
         await blog.save();
         res.json({
@@ -114,11 +120,19 @@ module.exports.editBlog = async (req, res) => {
                 message: "Blog không tồn tại!"
             });
         }
-        if(data.file){
-            const result = await uploadToCloudinaryHelper.uploader.upload(data.file);
+        if(data.thumbnail){
+            const result = await uploadToCloudinaryHelper.uploader.upload(data.thumbnail);
             data.thumbnail = result.secure_url;
         }
-        await Blog.updateOne({ _id: blogId }, data);
+        await Blog.updateOne({ _id: blogId }, {
+            ...data,
+            $push: {
+                updatedBy: {
+                    account_id: req.accountId,
+                    updatedAt: Date.now()
+                }
+            }
+        });
         res.json({
             success: true,
             message: "Cập nhật blog thành công!"
