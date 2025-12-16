@@ -6,11 +6,14 @@ const bcrypt = require('bcrypt');
 module.exports.index = async (req, res) => {
     const id = req.accountId;
     try {
-        const accountInfor = await Account.findById(id).select("email fullName phone address birthday avatar");
+        const accountInfor = await Account.findById(id).select("email fullName phone address birthday avatar role_id").populate({
+            path: "role_id",
+            select: "name"
+        });
         res.json(accountInfor);
     } catch (error) {
         res.status(500).json({
-            message: "Lấy thông tin thất bại!"
+            message: "Lỗi server!"
         });
     }
 };
@@ -32,7 +35,7 @@ module.exports.editInfor = async (req, res) => {
         res.json({ message: "Cập nhật thông tin thành công!" });
     } catch (error) {
         res.status(500).json({
-            message: "Lấy thông tin thất bại!"
+            message: "Lỗi server!"
         });
     }
 };
@@ -41,19 +44,18 @@ module.exports.editInfor = async (req, res) => {
 module.exports.changePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
     try {
-        if(oldPassword === newPassword) return res.status(400).json({message: "Mật khẩu cũ không được trùng với mật khẩu mới!"});
         const myAccount = await Account.findOne({
             _id: req.accountId
-        });
+        }).select("password");
         const check = await bcrypt.compare(oldPassword, myAccount.password);
         if(!check)  return res.status(400).json({message: "Mật khẩu cũ không chính xác!"});
         
         const hashed = await bcrypt.hash(newPassword, 10);
         await Account.updateOne({_id: req.accountId}, {password: hashed});
-        res.json("Đổi mật khẩu thành công!");
+        res.json({ message: "Đổi mật khẩu thành công!" });
     } catch (error) {
         res.status(500).json({
-            message: "Thất bại!"
+            message: "Lỗi server!"
         });
     }
 
