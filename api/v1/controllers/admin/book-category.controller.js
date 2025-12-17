@@ -1,17 +1,12 @@
 const BookCategory = require("../../models/book-category.model");
 const categoryHelper = require("../../../../helpers/category");
 const searchInforHelper = require("../../../../helpers/searchInfor");
-const paginationHelper = require("../../../../helpers/pagination");
 
 // [GET] /admin/book-category
 module.exports.index = async (req, res) => {
-    const page = req.query.page;
     const keyword = req.query.keyword;
     const status = req.query.status;
-    const sortKey = req.query.sortKey;
-    const sortValue = req.query.sortValue;
     const find = {};
-    const sort = {};
     try {
         //Tìm kiếm
         if (keyword) {

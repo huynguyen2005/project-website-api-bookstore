@@ -4,6 +4,11 @@ const distributorSchema = new mongoose.Schema({
     name: String,
     description: String,
     position: Number,
+    slug: {
+        type: String,
+        slug: "name",
+        unique: true
+    },
     status: {
         type: String,
         default: "active"

@@ -1,7 +1,7 @@
 module.exports = (totalRecord, page) => {
     const initPagination = {
         currentPage: 1,
-        limitRecord: 10
+        limitRecord: 1
     };
     if (page) {
         initPagination.currentPage = parseInt(page);
