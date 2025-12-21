@@ -1,6 +1,3 @@
 module.exports.index = (req, res) => {
-    const user = req.user;
-    res.json({
-        user
-    });
+    res.json({ message: "HELLO" });
 }
