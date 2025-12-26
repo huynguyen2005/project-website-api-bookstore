@@ -2,7 +2,7 @@ const Distributor = require("../../models/distributor.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /admin/distributor
+// [GET] /admin/distributors
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -12,9 +12,6 @@ module.exports.index = async (req, res) => {
     const find = {};
     const sort = {};
     try {
-        const totalRecord = await Distributor.countDocuments(find);
-        const initPagination = paginationHelper(totalRecord, page);
-
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
             find.name = objectSearch.regex;
@@ -28,17 +25,13 @@ module.exports.index = async (req, res) => {
             sort[sortKey] = sortValue;
         }
 
+        const totalRecord = await Distributor.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
+
         const allDistributor = await Distributor.find(find)
             .sort(sort)
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
-
-        if (allDistributor.length <= 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy nhà phân phối!"
-            });
-        }
 
         res.json({
             distributors: allDistributor,
@@ -52,7 +45,7 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/distributor/list
+// [GET] /admin/distributors/list
 module.exports.getListDistributor = async (req, res) => {
     try {
         const distributors = await Distributor.find().select("id name");
@@ -65,7 +58,7 @@ module.exports.getListDistributor = async (req, res) => {
     }
 }
 
-// [GET] /admin/distributor/:id
+// [GET] /admin/distributors/:id
 module.exports.getDistributor = async (req, res) => {
     const DistributorId = req.params.id;
     try {
@@ -85,7 +78,7 @@ module.exports.getDistributor = async (req, res) => {
     }
 };
 
-// [POST] /admin/distributor/create
+// [POST] /admin/distributors
 module.exports.createDistributor = async (req, res) => {
     const data = req.body;
     try {
@@ -112,7 +105,7 @@ module.exports.createDistributor = async (req, res) => {
     }
 };
 
-// [PUT] /admin/distributor/edit/:id
+// [PUT] /admin/distributors/:id
 module.exports.editDistributor = async (req, res) => {
     const distributorId = req.params.id;
     const data = req.body;
@@ -146,7 +139,7 @@ module.exports.editDistributor = async (req, res) => {
     }
 };
 
-// [DELETE] /admin/distributor/delete/:id
+// [DELETE] /admin/distributors/:id
 module.exports.deleteDistributor = async (req, res) => {
     const distributorId = req.params.id;
     try {

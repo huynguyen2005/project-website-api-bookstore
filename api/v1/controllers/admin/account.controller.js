@@ -1,12 +1,9 @@
 const Account = require("../../models/account.model");
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
-const authHelper = require("../../../../helpers/auth");
-let refreshTokens = [];
 
-// [GET] /admin/account
+// [GET] /admin/accounts
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -18,10 +15,6 @@ module.exports.index = async (req, res) => {
     const sort = {};
 
     try {
-        // Phân trang
-        const totalRecord = await Account.countDocuments(find);
-        const initPagination = paginationHelper(totalRecord, page);
-
         // Tìm kiếm theo tên
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
@@ -43,12 +36,9 @@ module.exports.index = async (req, res) => {
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
 
-        if (allAccounts.length <= 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy tài khoản nào!"
-            });
-        }
+        // Phân trang
+        const totalRecord = await Account.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
 
         res.json({
             accounts: allAccounts,
@@ -63,7 +53,7 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/account/:id
+// [GET] /admin/accounts/:id
 module.exports.getAccount = async (req, res) => {
     const accountId = req.params.id;
 
@@ -87,7 +77,7 @@ module.exports.getAccount = async (req, res) => {
     }
 };
 
-// [POST] /admin/account/create
+// [POST] /admin/accounts
 module.exports.createAccount = async (req, res) => {
     const data = req.body;
 
@@ -123,7 +113,7 @@ module.exports.createAccount = async (req, res) => {
     }
 };
 
-// [PUT] /admin/account/edit/:id
+// [PUT] /admin/accounts/:id
 module.exports.editAccount = async (req, res) => {
     const accountId = req.params.id;
     const data = req.body;
@@ -168,7 +158,7 @@ module.exports.editAccount = async (req, res) => {
     }
 };
 
-// [DELETE] /admin/account/delete/:id
+// [DELETE] /admin/accounts/:id
 module.exports.deleteAccount = async (req, res) => {
     const accountId = req.params.id;
 
@@ -196,62 +186,3 @@ module.exports.deleteAccount = async (req, res) => {
         });
     }
 };
-
-// [POST] /admin/account/login
-module.exports.login = async (req, res) => {
-    const account = await Account.findOne({ email: req.body.email }).populate("role_id");
-    if (!account) return res.status(401).json({ success: false, message: "Email không tồn tại!" });
-    const validPassword = await bcrypt.compare(req.body.password, account.password);
-    if (!validPassword) return res.status(401).json({ success: false, message: "Mật khẩu không chính xác!" });
-    if (account.status === "inactive") return res.status(403).json({ success: false, message: "Tài khoản đã bị khóa!" });
-
-    const accessToken = authHelper.generateAccessToken(account);
-    const refreshToken = authHelper.generateRefreshToken(account);
-    refreshTokens.push(refreshToken);
-
-    res.cookie("adminRefreshToken", refreshToken, {
-        httpOnly: true, //JS không đọc được
-        secure: false, //Nếu để là true cookies chỉ gửi qua HTTPS
-        path: "/", //Cookie có hiệu lực toàn domain
-    });
-
-    const { password, ...accountInfor } = account._doc;
-    res.json({ accountInfor, accessToken });
-};
-
-// [POST] /admin/account/refresh-token
-module.exports.requestRefreshToken = (req, res) => {
-    const refreshToken = req.cookies.adminRefreshToken;
-    if (!refreshTokens.includes(refreshToken)) return res.status(401).json("adminRefreshToken không tồn tại!");
-    jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (error, payload) => {
-        if (error) return res.status(401).json("adminRefreshToken bị sai hoặc hết hạn!");
-
-        refreshTokens = refreshTokens.filter(token => token !== refreshToken);
-
-        const newAccessToken = authHelper.generateAccessToken(payload);
-        const newRefreshToken = authHelper.generateRefreshToken(payload);
-        refreshTokens.push(newRefreshToken);
-
-        res.cookie("adminRefreshToken", newRefreshToken, {
-            httpOnly: true, //JS không đọc được
-            secure: false, //Nếu để là true cookies chỉ gửi qua HTTPS
-            path: "/", //Cookie có hiệu lực toàn domain
-        });
-
-        res.json({ accessToken: newAccessToken });
-    });
-
-};
-
-// [POST] /admin/account/logout
-module.exports.logout = (req, res) => {
-    refreshTokens = refreshTokens.filter(token => token !== req.cookies.adminRefreshToken);
-    res.clearCookie("adminRefreshToken");
-    res.json({
-        success: true,
-        message: "Đăng xuất thành công"
-    });
-};
-
-
-

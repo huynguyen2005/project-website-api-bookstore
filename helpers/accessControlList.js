@@ -81,5 +81,10 @@ module.exports = {
     "GET /api/v1/admin/account/:id": "account_detail",
     "POST /api/v1/admin/account/create": "account_create",
     "PUT /api/v1/admin/account/edit/:id": "account_edit",
-    "DELETE /api/v1/admin/account/delete/:id": "account_delete"
+    "DELETE /api/v1/admin/account/delete/:id": "account_delete",
+
+    //Order
+    "GET /api/v1/admin/orders": "order_view",
+    "GET /api/v1/admin/orders/:id": "order_detail",
+    "PUT /api/v1/admin/orders/:id/status": "order_edit_status",
 };

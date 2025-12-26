@@ -2,7 +2,7 @@ const PaymentMethod = require("../../models/payment-method.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /admin/payment-method
+// [GET] /admin/payment-methods
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -12,10 +12,6 @@ module.exports.index = async (req, res) => {
     const find = {};
     const sort = {};
     try {
-        // Phân trang
-        const totalRecord = await PaymentMethod.countDocuments(find);
-        const initPagination = paginationHelper(totalRecord, page);
-
         // Tìm kiếm
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
@@ -32,17 +28,14 @@ module.exports.index = async (req, res) => {
             sort[sortKey] = sortValue;
         }
 
+        // Phân trang
+        const totalRecord = await PaymentMethod.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
+
         const allPaymentMethod = await PaymentMethod.find(find)
             .sort(sort)
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
-
-        if (allPaymentMethod.length <= 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy phương thức thanh toán!"
-            });
-        }
 
         res.json({
             paymentMethods: allPaymentMethod,
@@ -56,7 +49,7 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/payment-method/:id
+// [GET] /admin/payment-methods/:id
 module.exports.getPaymentMethod = async (req, res) => {
     const paymentMethodId = req.params.id;
     try {
@@ -76,7 +69,7 @@ module.exports.getPaymentMethod = async (req, res) => {
     }
 };
 
-// [POST] /admin/payment-method/create
+// [POST] /admin/payment-methods
 module.exports.createPaymentMethod = async (req, res) => {
     const data = req.body;
     try {
@@ -103,7 +96,7 @@ module.exports.createPaymentMethod = async (req, res) => {
     }
 };
 
-// [PUT] /admin/payment-method/edit/:id
+// [PUT] /admin/payment-methods/:id
 module.exports.editPaymentMethod = async (req, res) => {
     const paymentMethodId = req.params.id;
     const data = req.body;
@@ -137,7 +130,7 @@ module.exports.editPaymentMethod = async (req, res) => {
     }
 };
 
-// [DELETE] /admin/payment-method/delete/:id
+// [DELETE] /admin/payment-methods/:id
 module.exports.deletePaymentMethod = async (req, res) => {
     const paymentMethodId = req.params.id;
     try {

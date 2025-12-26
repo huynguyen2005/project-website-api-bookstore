@@ -2,7 +2,7 @@ const BookCategory = require("../../models/book-category.model");
 const categoryHelper = require("../../../../helpers/category");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 
-// [GET] /admin/book-category
+// [GET] /admin/book-categories
 module.exports.index = async (req, res) => {
     const keyword = req.query.keyword;
     const status = req.query.status;
@@ -40,7 +40,7 @@ module.exports.index = async (req, res) => {
     }
 };
 
-//[GET] /admin/book-category/all
+//[GET] /admin/book-categories/list
 module.exports.getListCategory = async (req, res) => {
     try {
         const categories = await BookCategory.find().select("id name");
@@ -53,7 +53,7 @@ module.exports.getListCategory = async (req, res) => {
     }
 };
 
-//[GET] /admin/book-category/:id
+//[GET] /admin/book-categories/:id
 module.exports.getCategory = async (req, res) => {
     const categoryId = req.params.id;
     try {
@@ -73,7 +73,7 @@ module.exports.getCategory = async (req, res) => {
     }
 };
 
-//[POST] /admin/book-category/create
+//[POST] /admin/book-categories
 module.exports.createCategory = async (req, res) => {
     const data = req.body;
     try {
@@ -100,7 +100,7 @@ module.exports.createCategory = async (req, res) => {
     }
 };
 
-//[PUT] /admin/book-category/edit/:id
+//[PUT] /admin/book-categories/:id
 module.exports.editCategory = async (req, res) => {
     const categoryId = req.params.id;
     const data = req.body;
@@ -134,7 +134,7 @@ module.exports.editCategory = async (req, res) => {
 };
 
 
-// [DELETE] /admin/book-category/delete/:id
+// [DELETE] /admin/book-categories/:id
 module.exports.deleteCategory = async (req, res) => {
     const categoryId = req.params.id;
     try {

@@ -1,3 +1,3 @@
 module.exports.calculateNewPrice = (book) => {
-    book.newPrice = book.price - (book.price * (book.discountPercent / 100));
+    return book.price - (book.price * (book.discountPercent / 100));
 };

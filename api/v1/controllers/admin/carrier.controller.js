@@ -2,7 +2,7 @@ const Carrier = require("../../models/carrier.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /admin/carrier
+// [GET] /admin/carriers
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -12,10 +12,6 @@ module.exports.index = async (req, res) => {
     const find = {};
     const sort = {};
     try {
-        // Phân trang
-        const totalRecord = await Carrier.countDocuments(find);
-        const initPagination = paginationHelper(totalRecord, page);
-
         // Tìm kiếm
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
@@ -32,17 +28,14 @@ module.exports.index = async (req, res) => {
             sort[sortKey] = sortValue;
         }
 
+        // Phân trang
+        const totalRecord = await Carrier.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
+
         const allCarrier = await Carrier.find(find)
             .sort(sort)
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
-
-        if (allCarrier.length <= 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy đơn vị vận chuyển!"
-            });
-        }
 
         res.json({
             carriers: allCarrier,
@@ -56,7 +49,7 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/carrier/:id
+// [GET] /admin/carriers/:id
 module.exports.getCarrier = async (req, res) => {
     const carrierId = req.params.id;
     try {
@@ -76,7 +69,7 @@ module.exports.getCarrier = async (req, res) => {
     }
 };
 
-// [POST] /admin/carrier/create
+// [POST] /admin/carriers
 module.exports.createCarrier = async (req, res) => {
     const data = req.body;
     try {
@@ -103,7 +96,7 @@ module.exports.createCarrier = async (req, res) => {
     }
 };
 
-// [PUT] /admin/carrier/edit/:id
+// [PUT] /admin/carriers/:id
 module.exports.editCarrier = async (req, res) => {
     const carrierId = req.params.id;
     const data = req.body;
@@ -137,7 +130,7 @@ module.exports.editCarrier = async (req, res) => {
     }
 };
 
-// [DELETE] /admin/carrier/delete/:id
+// [DELETE] /admin/carriers/:id
 module.exports.deleteCarrier = async (req, res) => {
     const carrierId = req.params.id;
     try {

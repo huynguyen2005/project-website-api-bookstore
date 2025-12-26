@@ -3,7 +3,7 @@ const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 const uploadToCloudinaryHelper = require("../../../../helpers/uploadToCloudinary");
 
-// [GET] /admin/blog
+// [GET] /admin/blogs
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -13,10 +13,6 @@ module.exports.index = async (req, res) => {
     const find = {};
     const sort = {};
     try {
-        // Phân trang
-        const totalRecord = await Blog.countDocuments(find);
-        const initPagination = paginationHelper(totalRecord, page);
-
         // Tìm kiếm
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
@@ -33,17 +29,14 @@ module.exports.index = async (req, res) => {
             sort[sortKey] = sortValue;
         }
 
+        // Phân trang
+        const totalRecord = await Blog.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
+
         const allBlog = await Blog.find(find)
             .sort(sort)
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
-
-        if (allBlog.length <= 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy blog!"
-            });
-        }
 
         res.json({
             blogs: allBlog,
@@ -57,7 +50,7 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/blog/:id
+// [GET] /admin/blogs/:id
 module.exports.getBlog = async (req, res) => {
     const blogId = req.params.id;
     try {
@@ -77,7 +70,7 @@ module.exports.getBlog = async (req, res) => {
     }
 };
 
-// [POST] /admin/blog/create
+// [POST] /admin/blogs
 module.exports.createBlog = async (req, res) => {
     const data = req.body;
     try {
@@ -108,7 +101,7 @@ module.exports.createBlog = async (req, res) => {
     }
 };
 
-// [PUT] /admin/blog/edit/:id
+// [PUT] /admin/blogs/:id
 module.exports.editBlog = async (req, res) => {
     const blogId = req.params.id;
     const data = req.body;
@@ -145,7 +138,7 @@ module.exports.editBlog = async (req, res) => {
     }
 };
 
-// [DELETE] /admin/blog/delete/:id
+// [DELETE] /admin/blogs/:id
 module.exports.deleteBlog = async (req, res) => {
     const blogId = req.params.id;
     try {

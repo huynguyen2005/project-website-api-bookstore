@@ -20,18 +20,18 @@ module.exports.index = async (req, res) => {
 
 // [PUT] /my-account/
 module.exports.editInfor = async (req, res) => {
-    const data = req.body;
+    let { email, fullName, phone, address, birthday, avatar } = req.body;
     const id = req.accountId;
     try {
-        if (data.email) {
-            const emailExit = await Account.findOne({ email: data.email });
+        if (email) {
+            const emailExit = await Account.findOne({ email, _id: { $ne: id } });
             if (emailExit) return res.status(400).json({ message: "Email đã tồn tại!" });
         }
-        if (data.avatar) {
-            const result = await uploadToCloudinaryHelper.uploader.upload(data.avatar);
-            data.avatar = result.secure_url;
+        if (avatar) {
+            const result = await uploadToCloudinaryHelper.uploader.upload(avatar);
+            avatar = result.secure_url;
         }
-        await Account.updateOne({ _id: id }, data);
+        await Account.findByIdAndUpdate(id, { email, fullName, phone, address, birthday, avatar });
         res.json({ message: "Cập nhật thông tin thành công!" });
     } catch (error) {
         res.status(500).json({
@@ -48,10 +48,10 @@ module.exports.changePassword = async (req, res) => {
             _id: req.accountId
         }).select("password");
         const check = await bcrypt.compare(oldPassword, myAccount.password);
-        if(!check)  return res.status(400).json({message: "Mật khẩu cũ không chính xác!"});
-        
+        if (!check) return res.status(400).json({ message: "Mật khẩu cũ không chính xác!" });
+
         const hashed = await bcrypt.hash(newPassword, 10);
-        await Account.updateOne({_id: req.accountId}, {password: hashed});
+        await Account.updateOne({ _id: req.accountId }, { password: hashed });
         res.json({ message: "Đổi mật khẩu thành công!" });
     } catch (error) {
         res.status(500).json({

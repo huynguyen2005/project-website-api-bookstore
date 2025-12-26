@@ -1,45 +1,73 @@
 const Book = require("../../models/book.model");
 const { calculateNewPrice } = require("../../../../helpers/book");
+const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /book/featured
-module.exports.getFeaturedBooks = async (req, res) => {
+// [GET] /books/search
+module.exports.searchBook = async (req, res) => {
+    const { q, page } = req.query;
     try {
-        const featuredBooks = await Book.find({
-            featured: true, 
-            status: "active"
-        })
-        .select("title thumbnail price slug discountPercent")
-        .limit(8);
-        
-        featuredBooks.forEach(item => calculateNewPrice(item));
+        const filter = {
+            $or: [
+                { title: { $regex: q, $options: 'i' } },
+                { description: { $regex: q, $options: 'i' } }
+            ]
+        };
 
-        res.json({featuredBooks})
+        const totalRecord = await Book.countDocuments(filter);
+        const initPagination = paginationHelper(totalRecord, page);
+
+        const books = await Book
+            .find(filter)
+            .select("title thumbnail price slug discountPercent")
+            .sort({ position: -1 })
+            .limit(initPagination.limitRecord)
+            .skip(initPagination.skip);
+
+        res.json({ books, totalPage: initPagination.totalPage });
     } catch (error) {
-        res.status(500).json({message: "Lỗi server!"});
+        res.status(500).json({ message: "Lỗi server!" });
     }
 };
 
-// [GET] /book/sale
+// [GET] /books/featured
+module.exports.getFeaturedBooks = async (req, res) => {
+    try {
+        const featuredBooks = await Book.find({
+            featured: true,
+            status: "active"
+        })
+            .select("title thumbnail price slug discountPercent")
+            .limit(8);
+
+        featuredBooks.forEach(item => calculateNewPrice(item));
+
+        res.json({ featuredBooks });
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi server!" });
+    }
+};
+
+// [GET] /books/sale
 module.exports.getSaleBooks = async (req, res) => {
     try {
         const saleBooks = await Book.find({
             discountPercent: { $gt: 0 },
             status: "active"
         })
-        .select("title thumbnail price slug discountPercent")
-        .sort({discountPercent: "desc"})
-        .limit(8)
-        .lean();
-        
-        saleBooks.forEach(item => calculateNewPrice(item)); 
+            .select("title thumbnail price slug discountPercent")
+            .sort({ discountPercent: "desc" })
+            .limit(8)
+            .lean();
 
-        res.json({saleBooks})
+        saleBooks.forEach(item => calculateNewPrice(item));
+
+        res.json({ saleBooks })
     } catch (error) {
-        res.status(500).json({message: "Lỗi server!"});
+        res.status(500).json({ message: "Lỗi server!" });
     }
 };
 
-// [GET] /book/:slug
+// [GET] /books/:slug
 module.exports.getBookDetail = async (req, res) => {
     const slug = req.params.slug;
     try {

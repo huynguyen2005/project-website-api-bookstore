@@ -2,7 +2,7 @@ const Author = require("../../models/author.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /admin/author
+// [GET] /admin/authors
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -12,10 +12,6 @@ module.exports.index = async (req, res) => {
     const find = {};
     const sort = {};
     try {
-        //Phân trang
-        const totalRecord = await Author.countDocuments(find);
-        const initPagination = paginationHelper(totalRecord, page);
-
         //Tìm kiếm
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
@@ -32,14 +28,12 @@ module.exports.index = async (req, res) => {
             sort[sortKey] = sortValue;
         }
 
+        //Phân trang
+        const totalRecord = await Author.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
+
         const allAuthor = await Author.find(find).sort(sort).limit(initPagination.limitRecord).skip(initPagination.skip);
 
-        if (allAuthor.length <= 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy tác giả!"
-            });
-        }
         res.json({
             authors: allAuthor,
             pageTotal: initPagination.totalPage
@@ -52,7 +46,7 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/author/list
+// [GET] /admin/authors/list
 module.exports.getListAuthor = async (req, res) => {
     try {
         const authors = await Author.find().select("id name");
@@ -65,7 +59,7 @@ module.exports.getListAuthor = async (req, res) => {
     }
 }
 
-// //[GET] /admin/author/:id
+// //[GET] /admin/authors/:id
 module.exports.getAuthor = async (req, res) => {
     const authorId = req.params.id;
     try {
@@ -85,7 +79,7 @@ module.exports.getAuthor = async (req, res) => {
     }
 };
 
-//[POST] /admin/author/create
+//[POST] /admin/authors
 module.exports.createAuthor = async (req, res) => {
     const data = req.body;
     try {
@@ -112,7 +106,7 @@ module.exports.createAuthor = async (req, res) => {
     }
 };
 
-//[PUT] /admin/author/edit/:id
+//[PUT] /admin/authors/:id
 module.exports.editAuthor = async (req, res) => {
     const authorId = req.params.id;
     const data = req.body;
@@ -146,7 +140,7 @@ module.exports.editAuthor = async (req, res) => {
 };
 
 
-// [DELETE] /admin/book-category/delete/:id
+//[DELETE] /admin/authors/:id
 module.exports.deleteAuthor = async (req, res) => {
     const authorId = req.params.id;
     try {

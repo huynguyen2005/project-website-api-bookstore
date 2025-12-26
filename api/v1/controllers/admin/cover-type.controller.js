@@ -2,7 +2,7 @@ const CoverType = require("../../models/cover-type.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /admin/cover-type
+// [GET] /admin/cover-types
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -14,9 +14,6 @@ module.exports.index = async (req, res) => {
     const sort = {};
 
     try {
-        const totalRecord = await CoverType.countDocuments(find);
-        const initPagination = paginationHelper(totalRecord, page);
-
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
             find.name = objectSearch.regex;
@@ -30,17 +27,13 @@ module.exports.index = async (req, res) => {
             sort[sortKey] = sortValue;
         }
 
+        const totalRecord = await CoverType.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
+
         const allCoverType = await CoverType.find(find)
             .sort(sort)
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
-
-        if (allCoverType.length <= 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy loại bìa!"
-            });
-        }
 
         res.json({
             coverTypes: allCoverType,
@@ -54,7 +47,7 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/cover-type/list
+// [GET] /admin/cover-types/list
 module.exports.getListCoverType = async (req, res) => {
     try {
         const coverTypes = await CoverType.find().select("id name");
@@ -67,7 +60,7 @@ module.exports.getListCoverType = async (req, res) => {
     }
 }
 
-// [GET] /admin/cover-type/:id
+// [GET] /admin/cover-types/:id
 module.exports.getCoverType = async (req, res) => {
     const coverTypeId = req.params.id;
     try {
@@ -87,7 +80,7 @@ module.exports.getCoverType = async (req, res) => {
     }
 };
 
-// [POST] /admin/cover-type/create
+// [POST] /admin/cover-types
 module.exports.createCoverType = async (req, res) => {
     const data = req.body;
     try {
@@ -115,7 +108,7 @@ module.exports.createCoverType = async (req, res) => {
     }
 };
 
-// [PUT] /admin/cover-type/edit/:id
+// [PUT] /admin/cover-types/:id
 module.exports.editCoverType = async (req, res) => {
     const coverTypeId = req.params.id;
     const data = req.body;
@@ -150,7 +143,7 @@ module.exports.editCoverType = async (req, res) => {
     }
 };
 
-// [DELETE] /admin/cover-type/delete/:id
+// [DELETE] /admin/cover-types/:id
 module.exports.deleteCoverType = async (req, res) => {
     const coverTypeId = req.params.id;
 

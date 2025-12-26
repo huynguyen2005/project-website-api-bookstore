@@ -2,7 +2,7 @@ const Role = require("../../models/role.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /admin/role
+// [GET] /admin/roles
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -52,7 +52,7 @@ module.exports.index = async (req, res) => {
     }
 };
 
-//[GET] /admin/role/list
+//[GET] /admin/roles/list
 module.exports.getListRole = async (req, res) => {
     try {
         const roles = await Role.find().select("id name");
@@ -65,7 +65,7 @@ module.exports.getListRole = async (req, res) => {
     }
 }
 
-// [GET] /admin/role/:id
+// [GET] /admin/roles/:id
 module.exports.getRole = async (req, res) => {
     const roleId = req.params.id;
     try {
@@ -85,7 +85,7 @@ module.exports.getRole = async (req, res) => {
     }
 };
 
-// [POST] /admin/role/create
+// [POST] /admin/roles
 module.exports.createRole = async (req, res) => {
     const data = req.body;
     try {
@@ -112,7 +112,7 @@ module.exports.createRole = async (req, res) => {
     }
 };
 
-// [PUT] /admin/role/edit/:id
+// [PUT] /admin/roles/:id
 module.exports.editRole = async (req, res) => {
     const roleId = req.params.id;
     const data = req.body;
@@ -146,7 +146,7 @@ module.exports.editRole = async (req, res) => {
     }
 };
 
-// [DELETE] /admin/role/delete/:id
+// [DELETE] /admin/roles/:id
 module.exports.deleteRole = async (req, res) => {
     const roleId = req.params.id;
     try {
@@ -171,22 +171,22 @@ module.exports.deleteRole = async (req, res) => {
     }
 };
 
-//[PUT] /admin/role/permission
+//[PUT] /admin/roles/permission
 module.exports.editPermission = async (req, res) => {
     const datas = req.body;
     try {
-        for (const data of datas) {
-            await Role.updateOne({ _id: data.id }, {
-                permissions: data.permissions,
-                ...data,
-                $push: {
-                    updatedBy: {
-                        account_id: req.accountId,
-                        updatedAt: Date.now()
-                    }
+        const updates = datas.map(data => ({
+            updateOne: {
+                filter: { _id: data.id },
+                update: { 
+                    permissions: data.permissions, 
+                    $push: { updatedBy: { account_id: req.accountId, updatedAt: Date.now() } } 
                 }
-            });
-        }
+            }
+        }));
+
+        await Role.bulkWrite(updates);
+
         res.json({
             success: true,
             message: "Cập nhật quyền thành công!"

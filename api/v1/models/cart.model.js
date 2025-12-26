@@ -12,13 +12,17 @@ const cartSchema = new mongoose.Schema(
                     type: mongoose.Schema.Types.ObjectId,
                     ref: "Book"
                 },
-                quantity: Number
+                quantity: Number,
+                isSelected: {
+                    type: Boolean,
+                    default: true
+                }
             }
         ]
     },
-{
-    timestamps: true
-}
+    {
+        timestamps: true
+    }
 );
 
 const Cart = mongoose.model("Cart", cartSchema, "carts");

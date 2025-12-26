@@ -4,9 +4,9 @@ const controller = require("../../controllers/admin/book-category.controller");
 
 router.get("/", controller.index);
 router.get("/list", controller.getListCategory);
-router.post("/create", controller.createCategory);
+router.post("/", controller.createCategory);
 router.get("/:id", controller.getCategory);
-router.put("/edit/:id", controller.editCategory);
-router.delete("/delete/:id", controller.deleteCategory);
+router.put("/:id", controller.editCategory);
+router.delete("/:id", controller.deleteCategory);
 
 module.exports = router;

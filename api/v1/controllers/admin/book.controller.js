@@ -3,7 +3,7 @@ const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 const uploadToCloudinaryHelper = require("../../../../helpers/uploadToCloudinary");
 
-// [GET] /admin/book
+// [GET] /admin/books
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -13,9 +13,6 @@ module.exports.index = async (req, res) => {
     const find = {};
     const sort = {};
     try {
-        const totalRecord = await Book.countDocuments(find);
-        const initPagination = paginationHelper(totalRecord, page);
-
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
             find.name = objectSearch.regex;
@@ -29,14 +26,10 @@ module.exports.index = async (req, res) => {
             sort[sortKey] = sortValue;
         }
 
-        const allBooks = await Book.find(find).sort(sort).limit(initPagination.limitRecord).skip(initPagination.skip);
+        const totalRecord = await Book.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
 
-        if (allBooks.length <= 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy sách!"
-            });
-        }
+        const allBooks = await Book.find(find).sort(sort).limit(initPagination.limitRecord).skip(initPagination.skip);
 
         res.json({
             books: allBooks,
@@ -50,7 +43,7 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/book/:id
+// [GET] /admin/books/:id
 module.exports.getBook = async (req, res) => {
     const bookId = req.params.id;
     try {
@@ -70,7 +63,7 @@ module.exports.getBook = async (req, res) => {
     }
 };
 
-// [POST] /admin/book/create
+// [POST] /admin/books
 module.exports.createBook = async (req, res) => {
     const data = req.body;
     try {
@@ -94,7 +87,7 @@ module.exports.createBook = async (req, res) => {
             account_id: req.accountId
         };
         data.createdBy = createdBy;
-        
+
         const book = new Book(data);
         await book.save();
         res.json({
@@ -103,13 +96,12 @@ module.exports.createBook = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({
-            success: false,
-            message: "Thêm sách thất bại!"
+            message: error
         });
     }
 };
 
-// [PUT] /admin/book/edit/:id
+// [PUT] /admin/books/:id
 module.exports.editBook = async (req, res) => {
     const bookId = req.params.id;
     const data = req.body;
@@ -158,7 +150,7 @@ module.exports.editBook = async (req, res) => {
     }
 };
 
-// [DELETE] /admin/book/delete/:id
+// [DELETE] /admin/books/:id
 module.exports.deleteBook = async (req, res) => {
     const bookId = req.params.id;
     try {

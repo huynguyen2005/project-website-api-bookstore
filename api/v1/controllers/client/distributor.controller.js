@@ -3,7 +3,7 @@ const Book = require("../../models/book.model");
 const { calculateNewPrice } = require("../../../../helpers/book");
 const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /distributor/
+// [GET] /distributors
 module.exports.getAll = async (req, res) => {
     try {
         const distributors = await Distributor.find({status: "active"}).select("slug name");
@@ -13,7 +13,7 @@ module.exports.getAll = async (req, res) => {
     }
 };
 
-// [GET] /book-category/:slug
+// [GET] /distributors/:slug
 module.exports.getBooksByDistributor = async (req, res) => {
     const slug = req.params.slug;
     const [sortKey, sortValue] = req.query.sortBy?.split("-") || [];

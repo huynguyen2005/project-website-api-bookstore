@@ -2,7 +2,7 @@ const Publisher = require("../../models/publisher.model");
 const searchInforHelper = require("../../../../helpers/searchInfor");
 const paginationHelper = require("../../../../helpers/pagination");
 
-// [GET] /admin/publisher
+// [GET] /admin/publishers
 module.exports.index = async (req, res) => {
     const page = req.query.page;
     const keyword = req.query.keyword;
@@ -56,7 +56,7 @@ module.exports.index = async (req, res) => {
     }
 };
 
-// [GET] /admin/publisher/list
+// [GET] /admin/publishers/list
 module.exports.getListPublisher = async (req, res) => {
     try {
         const publishers = await Publisher.find().select("id name");
@@ -69,7 +69,7 @@ module.exports.getListPublisher = async (req, res) => {
     }
 }
 
-// [GET] /admin/publisher/:id
+// [GET] /admin/publishers/:id
 module.exports.getPublisher = async (req, res) => {
     const publisherId = req.params.id;
     try {
@@ -89,7 +89,7 @@ module.exports.getPublisher = async (req, res) => {
     }
 };
 
-// [POST] /admin/publisher/create
+// [POST] /admin/publishers
 module.exports.createPublisher = async (req, res) => {
     const data = req.body;
     try {
@@ -116,7 +116,7 @@ module.exports.createPublisher = async (req, res) => {
     }
 };
 
-// [PUT] /admin/publisher/edit/:id
+// [PUT] /admin/publishers/:id
 module.exports.editPublisher = async (req, res) => {
     const publisherId = req.params.id;
     const data = req.body;
@@ -150,7 +150,7 @@ module.exports.editPublisher = async (req, res) => {
     }
 };
 
-// [DELETE] /admin/publisher/delete/:id
+// [DELETE] /admin/publishers/:id
 module.exports.deletePublisher = async (req, res) => {
     const publisherId = req.params.id;
     try {
