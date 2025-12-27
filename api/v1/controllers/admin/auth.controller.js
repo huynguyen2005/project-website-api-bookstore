@@ -78,10 +78,7 @@ module.exports.forgotPassword = async (req, res) => {
             return res.status(409).json({ message: "Đã gửi OTP!" });
         }
         const otp = crypto.randomInt(100000, 999999).toString();
-        const hashOtp = crypto
-            .createHash("sha256")
-            .update(otp)
-            .digest("hex");
+        const hashOtp = crypto.createHash("sha256").update(otp).digest("hex");
 
         await ForgotPassword.create({
             email,

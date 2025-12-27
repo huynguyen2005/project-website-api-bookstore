@@ -1,8 +1,11 @@
 const User = require("../../models/user.model");
 const Cart = require("../../models/cart.model");
+const ForgotPassword = require("../../models/forgot-password.model");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const authHelper = require("../../../../helpers/auth");
+const { sendMail } = require("../../../../helpers/mail");
+const crypto = require("crypto");
 let refreshTokens = [];
 
 //[POST] /auth/register
@@ -131,3 +134,60 @@ module.exports.logout = (req, res) => {
     });
 };
 
+// [POST] /auth/forgot-password
+module.exports.forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const exitEmail = await Account.findOne({ email });
+        if (!exitEmail) {
+            return res.status(404).json({ message: "Email không tồn tại!" });
+        }
+        const emailIsSentOTP = await ForgotPassword.findOne({ email });
+        if (emailIsSentOTP) {
+            return res.status(409).json({ message: "Đã gửi OTP!" });
+        }
+        const otp = crypto.randomInt(100000, 999999).toString();
+        const hashOtp = crypto.createHash("sha256").update(otp).digest("hex");
+
+        await ForgotPassword.create({
+            email,
+            otp: hashOtp,
+            expiredAt: Date.now()
+        });
+
+        const subject = "Mã OTP xác minh lấy lại mật khẩu";
+        const html = `Mã OTP để lấy lại mật khẩu là: <b>${otp}</b>. Thời gian sử dụng là 3 phút`;
+        sendMail(email, subject, html);
+        res.json({ message: "OTP đã được gửi về email" });
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi server!" });
+    }
+};
+
+
+// POST /auth/reset-password
+module.exports.resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+
+    try {
+        const record = await ForgotPassword.findOne({ email });
+        if (!record)
+            return res.status(400).json({ message: "OTP hết hạn hoặc không tồn tại!" });
+
+        const hashOtp = crypto.createHash("sha256").update(otp).digest("hex");
+        if (hashOtp !== record.otp)
+            return res.status(400).json({ message: "OTP không đúng!" });
+
+        const hashPassword = await bcrypt.hash(newPassword, 10);
+        await Account.findOneAndUpdate(
+            { email },
+            { password: hashPassword }
+        );
+
+        await ForgotPassword.deleteOne({ email });
+
+        res.json({ message: "Đổi mật khẩu thành công" });
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi server!" });
+    }
+};
