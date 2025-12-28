@@ -26,13 +26,13 @@ module.exports.login = async (req, res) => {
         path: "/", //Cookie có hiệu lực toàn domain
     });
 
-    // const { password, ...accountInfor } = account._doc;
-    res.json({ accessToken });
+    res.json({ accessToken, account: { _id: account.id, fullName: account.fullName } });
 };
 
 // [POST] /admin/auth/refresh-token
 module.exports.requestRefreshToken = (req, res) => {
     const refreshToken = req.cookies.adminRefreshToken;
+    if (!refreshToken) return res.status(401).json("Không có refreshToken!");
     if (!refreshTokens.includes(refreshToken)) return res.status(401).json("adminRefreshToken không tồn tại!");
     jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (error, payload) => {
         if (error) return res.status(401).json("adminRefreshToken bị sai hoặc hết hạn!");
@@ -47,6 +47,7 @@ module.exports.requestRefreshToken = (req, res) => {
             httpOnly: true, //JS không đọc được
             secure: false, //Nếu để là true cookies chỉ gửi qua HTTPS
             path: "/", //Cookie có hiệu lực toàn domain
+            maxAge: 24 * 60 * 60 * 1000
         });
 
         res.json({ accessToken: newAccessToken });

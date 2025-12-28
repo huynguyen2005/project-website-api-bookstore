@@ -12,9 +12,6 @@ module.exports.index = async (req, res) => {
     const find = {};
     const sort = {};
     try {
-        const totalRecord = await Role.countDocuments(find);
-        const initPagination = paginationHelper(totalRecord, page);
-
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
             find.name = objectSearch.regex;
@@ -28,17 +25,13 @@ module.exports.index = async (req, res) => {
             sort[sortKey] = sortValue;
         }
 
+        const totalRecord = await Role.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
+
         const allRole = await Role.find(find)
             .sort(sort)
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
-
-        if (allRole.length <= 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy vai trò!"
-            });
-        }
 
         res.json({
             roles: allRole,
@@ -55,7 +48,7 @@ module.exports.index = async (req, res) => {
 //[GET] /admin/roles/list
 module.exports.getListRole = async (req, res) => {
     try {
-        const roles = await Role.find().select("id name");
+        const roles = await Role.find().select("name");
         res.json(roles);
     } catch (error) {
         res.status(500).json({
@@ -69,7 +62,9 @@ module.exports.getListRole = async (req, res) => {
 module.exports.getRole = async (req, res) => {
     const roleId = req.params.id;
     try {
-        const role = await Role.findById(roleId);
+        const role = await Role.findById(roleId)
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
         if (!role) {
             return res.status(404).json({
                 success: false,
@@ -178,9 +173,11 @@ module.exports.editPermission = async (req, res) => {
         const updates = datas.map(data => ({
             updateOne: {
                 filter: { _id: data.id },
-                update: { 
-                    permissions: data.permissions, 
-                    $push: { updatedBy: { account_id: req.accountId, updatedAt: Date.now() } } 
+                update: {
+                    $set: {
+                        permissions: data.permissions
+                    },
+                    $push: { updatedBy: { account_id: req.accountId, updatedAt: Date.now() } }
                 }
             }
         }));
@@ -195,6 +192,24 @@ module.exports.editPermission = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Cập nhật quyền thất bại!"
+        });
+    }
+};
+
+// [DELETE] /admin/roles
+module.exports.deleteManyRole = async (req, res) => {
+    const { ids } = req.body;
+    try {
+        await Role.deleteMany({ _id: { $in: ids } });
+        res.json({
+            success: true,
+            message: "Xóa role thành công!"
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Xóa role thất bại!"
         });
     }
 };

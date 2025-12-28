@@ -54,7 +54,9 @@ module.exports.index = async (req, res) => {
 module.exports.getBlog = async (req, res) => {
     const blogId = req.params.id;
     try {
-        const blog = await Blog.findById(blogId);
+        const blog = await Blog.findById(blogId)
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
         if (!blog) {
             return res.status(404).json({
                 success: false,
@@ -74,7 +76,7 @@ module.exports.getBlog = async (req, res) => {
 module.exports.createBlog = async (req, res) => {
     const data = req.body;
     try {
-        if(data.thumbnail){
+        if (data.thumbnail) {
             const result = await uploadToCloudinaryHelper.uploader.upload(data.thumbnail);
             data.thumbnail = result.secure_url;
         }
@@ -113,7 +115,7 @@ module.exports.editBlog = async (req, res) => {
                 message: "Blog không tồn tại!"
             });
         }
-        if(data.thumbnail){
+        if (data.thumbnail) {
             const result = await uploadToCloudinaryHelper.uploader.upload(data.thumbnail);
             data.thumbnail = result.secure_url;
         }
@@ -156,6 +158,24 @@ module.exports.deleteBlog = async (req, res) => {
             message: "Xóa blog thành công!"
         });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Xóa blog thất bại!"
+        });
+    }
+};
+
+// [DELETE] /admin/blogs
+module.exports.deleteManyBlog = async (req, res) => {
+    const { ids } = req.body;
+    try {
+        await Blog.deleteMany({ _id: { $in: ids } });
+        res.json({
+            success: true,
+            message: "Xóa blog thành công!"
+        });
+    } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Xóa blog thất bại!"

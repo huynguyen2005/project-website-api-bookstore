@@ -8,5 +8,6 @@ router.post("/", controller.createCoverType);
 router.get("/:id", controller.getCoverType);
 router.put("/:id", controller.editCoverType);
 router.delete("/:id", controller.deleteCoverType);
+router.delete("/", controller.deleteManyCoverType);
 
 module.exports = router;

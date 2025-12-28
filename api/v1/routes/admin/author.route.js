@@ -8,5 +8,6 @@ router.post("/", controller.createAuthor);
 router.get("/:id", controller.getAuthor);
 router.put("/:id", controller.editAuthor);
 router.delete("/:id", controller.deleteAuthor);
+router.delete("/", controller.deleteManyAuthor);
 
 module.exports = router;

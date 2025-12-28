@@ -9,5 +9,6 @@ router.post("/", controller.createRole);
 router.get("/:id", controller.getRole);
 router.put("/:id", controller.editRole);
 router.delete("/:id", controller.deleteRole);
+router.delete("/", controller.deleteManyRole);
 
 module.exports = router;

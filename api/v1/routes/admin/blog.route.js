@@ -7,5 +7,6 @@ router.post("/", controller.createBlog);
 router.get("/:id", controller.getBlog);
 router.put("/:id", controller.editBlog);
 router.delete("/:id", controller.deleteBlog);
+router.delete("/", controller.deleteManyBlog);
 
 module.exports = router;

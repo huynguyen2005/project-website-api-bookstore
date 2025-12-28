@@ -11,8 +11,8 @@ const bookCategorySchema = new mongoose.Schema({
         unique: true
     },
     parentId: {
-        type: String,
-        default: ""
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "BookCategory"
     },
     description: String,
     status: {

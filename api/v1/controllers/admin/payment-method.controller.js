@@ -53,7 +53,9 @@ module.exports.index = async (req, res) => {
 module.exports.getPaymentMethod = async (req, res) => {
     const paymentMethodId = req.params.id;
     try {
-        const paymentMethod = await PaymentMethod.findById(paymentMethodId);
+        const paymentMethod = await PaymentMethod.findById(paymentMethodId)
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
         if (!paymentMethod) {
             return res.status(404).json({
                 success: false,
@@ -148,6 +150,24 @@ module.exports.deletePaymentMethod = async (req, res) => {
             message: "Xóa phương thức thanh toán thành công!"
         });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Xóa phương thức thanh toán thất bại!"
+        });
+    }
+};
+
+// [DELETE] /admin/payment-methods
+module.exports.deleteManyPaymentMethod = async (req, res) => {
+    const { ids } = req.body;
+    try {
+        await PaymentMethod.deleteMany({ _id: { $in: ids } });
+        res.json({
+            success: true,
+            message: "Xóa phương thức thanh toán thành công!"
+        });
+    } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Xóa phương thức thanh toán thất bại!"

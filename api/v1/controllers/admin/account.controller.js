@@ -11,7 +11,9 @@ module.exports.index = async (req, res) => {
     const sortKey = req.query.sortKey;
     const sortValue = req.query.sortValue;
 
-    const find = {};
+    const find = {
+        _id: { $ne: req.accountId }
+    };
     const sort = {};
 
     try {
@@ -31,14 +33,16 @@ module.exports.index = async (req, res) => {
             sort[sortKey] = sortValue;
         }
 
+        // Phân trang
+        const totalRecord = await Account.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
+
         const allAccounts = await Account.find(find)
+            .populate({ path: "role_id", select: "name" })
             .sort(sort)
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
 
-        // Phân trang
-        const totalRecord = await Account.countDocuments(find);
-        const initPagination = paginationHelper(totalRecord, page);
 
         res.json({
             accounts: allAccounts,
@@ -46,6 +50,7 @@ module.exports.index = async (req, res) => {
         });
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Lấy danh sách tài khoản thất bại!"
@@ -58,7 +63,10 @@ module.exports.getAccount = async (req, res) => {
     const accountId = req.params.id;
 
     try {
-        const account = await Account.findById(accountId);
+        const account = await Account.findById(accountId)
+            .populate({ path: "role_id", select: "name" })
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
 
         if (!account) {
             return res.status(404).json({
@@ -127,14 +135,16 @@ module.exports.editAccount = async (req, res) => {
             });
         }
         if (data.email) {
-            const emailExit = await Account.findOne({ email: data.email });
+            const emailExit = await Account.findOne({ email: data.email, _id: { $ne: accountId } });
             if (emailExit) return res.status(401).json("Email đã tồn tại!");
         }
         if (data.password) {
             const hashed = await bcrypt.hash(data.password, 10);
             data.password = hashed;
         }
-
+        if (!data.role_id) {
+            data.role_id = null;
+        }
         await Account.updateOne({ _id: accountId }, {
             ...data,
             $push: {
@@ -151,6 +161,7 @@ module.exports.editAccount = async (req, res) => {
         });
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Cập nhật tài khoản thất bại!"
@@ -180,6 +191,24 @@ module.exports.deleteAccount = async (req, res) => {
         });
 
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Xóa tài khoản thất bại!"
+        });
+    }
+};
+
+// [DELETE] /admin/accounts
+module.exports.deleteManyAccount = async (req, res) => {
+    const { ids } = req.body;
+    try {
+        await Account.deleteMany({ _id: { $in: ids } });
+        res.json({
+            success: true,
+            message: "Xóa tài khoản thành công!"
+        });
+    } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Xóa tài khoản thất bại!"

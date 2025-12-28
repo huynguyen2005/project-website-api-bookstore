@@ -8,5 +8,6 @@ router.post("/", controller.createPublisher);
 router.get("/:id", controller.getPublisher);
 router.put("/:id", controller.editPublisher);
 router.delete("/:id", controller.deletePublisher);
+router.delete("/", controller.deleteManyPublisher);
 
 module.exports = router;

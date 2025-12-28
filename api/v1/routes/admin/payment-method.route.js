@@ -7,5 +7,6 @@ router.post("/", controller.createPaymentMethod);
 router.get("/:id", controller.getPaymentMethod);
 router.put("/:id", controller.editPaymentMethod);
 router.delete("/:id", controller.deletePaymentMethod);
+router.delete("/", controller.deleteManyPaymentMethod);
 
 module.exports = router;

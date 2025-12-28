@@ -20,16 +20,7 @@ module.exports.index = async (req, res) => {
         }
 
         const allCategory = await BookCategory.find(find);
-        if (allCategory.length <= 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy danh mục!"
-            });
-        }
 
-        if (keyword || status) {
-            return res.json(allCategory);
-        }
         const newAllCategory = categoryHelper.createTree(allCategory);
         res.json(newAllCategory);
     } catch (error) {
@@ -57,7 +48,10 @@ module.exports.getListCategory = async (req, res) => {
 module.exports.getCategory = async (req, res) => {
     const categoryId = req.params.id;
     try {
-        const category = await BookCategory.findById(categoryId);
+        const category = await BookCategory.findById(categoryId)
+            .populate({ path: "parentId", select: "name" })
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
         if (!category) {
             return res.status(404).json({
                 success: false,
@@ -168,4 +162,21 @@ module.exports.deleteCategory = async (req, res) => {
     }
 };
 
+// [DELETE] /admin/book-categories
+module.exports.deleteManyCategory = async (req, res) => {
+    const { ids } = req.body;
+    try {
+        await BookCategory.deleteMany({ _id: { $in: ids } });
+        res.json({
+            success: true,
+            message: "Xóa danh mục sách thành công!"
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Xóa danh mục sách thất bại!"
+        });
+    }
+};
 

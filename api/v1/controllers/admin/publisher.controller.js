@@ -12,10 +12,6 @@ module.exports.index = async (req, res) => {
     const find = {};
     const sort = {};
     try {
-        // Phân trang
-        const totalRecord = await Publisher.countDocuments(find);
-        const initPagination = paginationHelper(totalRecord, page);
-
         // Tìm kiếm
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
@@ -32,17 +28,14 @@ module.exports.index = async (req, res) => {
             sort[sortKey] = sortValue;
         }
 
+        // Phân trang
+        const totalRecord = await Publisher.countDocuments(find);
+        const initPagination = paginationHelper(totalRecord, page);
+        
         const allPublisher = await Publisher.find(find)
             .sort(sort)
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
-
-        if (allPublisher.length <= 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy nhà xuất bản!"
-            });
-        }
 
         res.json({
             publishers: allPublisher,
@@ -73,7 +66,9 @@ module.exports.getListPublisher = async (req, res) => {
 module.exports.getPublisher = async (req, res) => {
     const publisherId = req.params.id;
     try {
-        const publisher = await Publisher.findById(publisherId);
+        const publisher = await Publisher.findById(publisherId)
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
         if (!publisher) {
             return res.status(404).json({
                 success: false,
@@ -109,6 +104,7 @@ module.exports.createPublisher = async (req, res) => {
             message: "Thêm nhà xuất bản thành công!"
         });
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Thêm nhà xuất bản thất bại!"
@@ -168,6 +164,24 @@ module.exports.deletePublisher = async (req, res) => {
             message: "Xóa nhà xuất bản thành công!"
         });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Xóa nhà xuất bản thất bại!"
+        });
+    }
+};
+
+// [DELETE] /admin/publishers
+module.exports.deleteManyPublisher = async (req, res) => {
+    const { ids } = req.body;
+    try {
+        await Publisher.deleteMany({ _id: { $in: ids } });
+        res.json({
+            success: true,
+            message: "Xóa nhà xuất bản thành công!"
+        });
+    } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Xóa nhà xuất bản thất bại!"

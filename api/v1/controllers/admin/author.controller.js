@@ -63,7 +63,9 @@ module.exports.getListAuthor = async (req, res) => {
 module.exports.getAuthor = async (req, res) => {
     const authorId = req.params.id;
     try {
-        const author = await Author.findById(authorId);
+        const author = await Author.findById(authorId)
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
         if (!author) {
             return res.status(404).json({
                 success: false,
@@ -86,7 +88,7 @@ module.exports.createAuthor = async (req, res) => {
         if (!data.position) {
             data.position = await Author.countDocuments() + 1;
         }
-        
+
         const createdBy = {
             account_id: req.accountId
         };
@@ -165,4 +167,21 @@ module.exports.deleteAuthor = async (req, res) => {
     }
 };
 
+// [DELETE] /admin/authors
+module.exports.deleteManyAuthor = async (req, res) => {
+    const { ids } = req.body;
+    try {
+        await Author.deleteMany({ _id: { $in: ids } });
+        res.json({
+            success: true,
+            message: "Xóa tác giả thành công!"
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Xóa tác giả thất bại!"
+        });
+    }
+};
 

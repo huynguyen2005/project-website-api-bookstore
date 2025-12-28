@@ -8,5 +8,6 @@ router.post("/", controller.createDistributor);
 router.get("/:id", controller.getDistributor);
 router.put("/:id", controller.editDistributor);
 router.delete("/:id", controller.deleteDistributor);
+router.delete("/", controller.deleteManyDistributor);
 
 module.exports = router;

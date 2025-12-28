@@ -8,6 +8,10 @@ const roleSchema = new mongoose.Schema({
         type: Array,
         default: []
     },
+    status: {
+        type: String,
+        default: "active"
+    },
     createdBy: {
         account_id: {
             type: mongoose.Schema.Types.ObjectId,

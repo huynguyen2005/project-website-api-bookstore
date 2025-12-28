@@ -7,5 +7,6 @@ router.post("/", controller.createCarrier);
 router.get("/:id", controller.getCarrier);
 router.put("/:id", controller.editCarrier);
 router.delete("/:id", controller.deleteCarrier);
+router.delete("/", controller.deleteManyCarrier);
 
 module.exports = router;

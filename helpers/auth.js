@@ -5,7 +5,7 @@ module.exports.generateAccessToken = (user) => {
         id: user.id
     };
     if (user.role_id) payload["permissions"] = user.role_id.permissions;
-    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_KEY, { expiresIn: "1h" });
+    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_KEY, { expiresIn: "5m" });
     return accessToken;
 };
 

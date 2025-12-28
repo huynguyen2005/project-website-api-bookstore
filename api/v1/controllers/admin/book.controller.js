@@ -15,7 +15,7 @@ module.exports.index = async (req, res) => {
     try {
         if (keyword) {
             const objectSearch = searchInforHelper(keyword);
-            find.name = objectSearch.regex;
+            find.title = objectSearch.regex;
         }
 
         if (status) {
@@ -47,7 +47,14 @@ module.exports.index = async (req, res) => {
 module.exports.getBook = async (req, res) => {
     const bookId = req.params.id;
     try {
-        const book = await Book.findById(bookId);
+        const book = await Book.findById(bookId)
+            .populate({ path: "distributor_id", select: "name" })
+            .populate({ path: "publisher_id", select: "name" })
+            .populate({ path: "book_category_id", select: "name" })
+            .populate({ path: "authors_id", select: "name" })
+            .populate({ path: "cover_type_id", select: "name" })
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
         if (!book) {
             return res.status(404).json({
                 success: false,
@@ -71,7 +78,7 @@ module.exports.createBook = async (req, res) => {
             const result = await uploadToCloudinaryHelper.uploader.upload(data.thumbnail);
             data.thumbnail = result.secure_url;
         }
-        if(data.images){
+        if (data.images) {
             const arr = [];
             for (const image of data.images) {
                 const result = await uploadToCloudinaryHelper.uploader.upload(image);
@@ -95,8 +102,9 @@ module.exports.createBook = async (req, res) => {
             message: "Thêm sách thành công!"
         });
     } catch (error) {
+        console.log(error);
         res.status(500).json({
-            message: error
+            message: "Lỗi server!"
         });
     }
 };
@@ -120,7 +128,7 @@ module.exports.editBook = async (req, res) => {
             data.thumbnail = result.secure_url;
         }
 
-        if(data.images){
+        if (data.images) {
             const arr = [];
             for (const image of data.images) {
                 const result = await uploadToCloudinaryHelper.uploader.upload(image);
@@ -128,9 +136,27 @@ module.exports.editBook = async (req, res) => {
             }
             data.images = arr;
         }
-        
+
         await Book.updateOne({ _id: bookId }, {
-            ...data,
+            $set: {
+                title: data.title,
+                description: data.description,
+                featured: data.featured,
+                price: data.price,
+                size: data.size,
+                publishDate: data.publishDate,
+                stockQuantity: data.stockQuantity,
+                thumbnail: data.thumbnail,
+                images: data.images,
+                distributor_id: data.distributor_id,
+                publisher_id: data.publisher_id,
+                book_category_id: data.book_category_id,
+                authors_id: data.authors_id,
+                cover_type_id: data.cover_type_id,
+                position: data.position,
+                status: data.status,
+                discountPercent: data.discountPercent,
+            },
             $push: {
                 updatedBy: {
                     account_id: req.accountId,
@@ -143,6 +169,7 @@ module.exports.editBook = async (req, res) => {
             message: "Cập nhật sách thành công!"
         });
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Cập nhật sách thất bại!"
@@ -168,6 +195,24 @@ module.exports.deleteBook = async (req, res) => {
             message: "Xóa sách thành công!"
         });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Xóa sách thất bại!"
+        });
+    }
+};
+
+// [DELETE] /admin/books
+module.exports.deleteManyBook = async (req, res) => {
+    const { ids } = req.body;
+    try {
+        await Book.deleteMany({ _id: { $in: ids } });
+        res.json({
+            success: true,
+            message: "Xóa sách thành công!"
+        });
+    } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Xóa sách thất bại!"

@@ -62,7 +62,9 @@ module.exports.getListDistributor = async (req, res) => {
 module.exports.getDistributor = async (req, res) => {
     const DistributorId = req.params.id;
     try {
-        const distributor = await Distributor.findById(DistributorId);
+        const distributor = await Distributor.findById(DistributorId)
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
         if (!distributor) {
             return res.status(404).json({
                 success: false,
@@ -157,6 +159,24 @@ module.exports.deleteDistributor = async (req, res) => {
             message: "Xóa nhà phân phối thành công!"
         });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Xóa nhà phân phối thất bại!"
+        });
+    }
+};
+
+// [DELETE] /admin/distributors
+module.exports.deleteManyDistributor = async (req, res) => {
+    const { ids } = req.body;
+    try {
+        await Distributor.deleteMany({ _id: { $in: ids } });
+        res.json({
+            success: true,
+            message: "Xóa nhà phân phối thành công!"
+        });
+    } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Xóa nhà phân phối thất bại!"

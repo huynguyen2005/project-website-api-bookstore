@@ -53,7 +53,9 @@ module.exports.index = async (req, res) => {
 module.exports.getCarrier = async (req, res) => {
     const carrierId = req.params.id;
     try {
-        const carrier = await Carrier.findById(carrierId);
+        const carrier = await Carrier.findById(carrierId)
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
         if (!carrier) {
             return res.status(404).json({
                 success: false,
@@ -73,7 +75,7 @@ module.exports.getCarrier = async (req, res) => {
 module.exports.createCarrier = async (req, res) => {
     const data = req.body;
     try {
-        if(!data.position){
+        if (!data.position) {
             data.position = await Carrier.countDocuments() + 1;
         }
 
@@ -148,6 +150,24 @@ module.exports.deleteCarrier = async (req, res) => {
             message: "Xóa đơn vị vận chuyển thành công!"
         });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Xóa đơn vị vận chuyển thất bại!"
+        });
+    }
+};
+
+// [DELETE] /admin/carriers
+module.exports.deleteManyCarrier = async (req, res) => {
+    const { ids } = req.body;
+    try {
+        await Carrier.deleteMany({ _id: { $in: ids } });
+        res.json({
+            success: true,
+            message: "Xóa đơn vị vận chuyển thành công!"
+        });
+    } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Xóa đơn vị vận chuyển thất bại!"

@@ -50,7 +50,9 @@ module.exports.index = async (req, res) => {
 // [GET] /admin/cover-types/list
 module.exports.getListCoverType = async (req, res) => {
     try {
-        const coverTypes = await CoverType.find().select("id name");
+        const coverTypes = await CoverType.find().select("id name")
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
         res.json(coverTypes);
     } catch (error) {
         res.status(500).json({
@@ -64,7 +66,9 @@ module.exports.getListCoverType = async (req, res) => {
 module.exports.getCoverType = async (req, res) => {
     const coverTypeId = req.params.id;
     try {
-        const coverType = await CoverType.findById(coverTypeId);
+        const coverType = await CoverType.findById(coverTypeId)
+            .populate({ path: "createdBy.account_id", select: "fullName" })
+            .populate({ path: "updatedBy.account_id", select: "fullName" });
         if (!coverType) {
             return res.status(404).json({
                 success: false,
@@ -162,6 +166,24 @@ module.exports.deleteCoverType = async (req, res) => {
             message: "Xóa loại bìa thành công!"
         });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Xóa loại bìa thất bại!"
+        });
+    }
+};
+
+// [DELETE] /admin/cover-types
+module.exports.deleteManyCoverType = async (req, res) => {
+    const { ids } = req.body;
+    try {
+        await CoverType.deleteMany({ _id: { $in: ids } });
+        res.json({
+            success: true,
+            message: "Xóa loại bìa thành công!"
+        });
+    } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Xóa loại bìa thất bại!"
