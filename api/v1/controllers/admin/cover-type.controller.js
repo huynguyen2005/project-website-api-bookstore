@@ -50,9 +50,7 @@ module.exports.index = async (req, res) => {
 // [GET] /admin/cover-types/list
 module.exports.getListCoverType = async (req, res) => {
     try {
-        const coverTypes = await CoverType.find().select("id name")
-            .populate({ path: "createdBy.account_id", select: "fullName" })
-            .populate({ path: "updatedBy.account_id", select: "fullName" });
+        const coverTypes = await CoverType.find().select("name");
         res.json(coverTypes);
     } catch (error) {
         res.status(500).json({

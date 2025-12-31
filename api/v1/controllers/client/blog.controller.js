@@ -14,7 +14,7 @@ module.exports.getBlogs = async (req, res) => {
 
         const blogs = await Blog.find(find)
             .sort({ position: -1 })
-            .select("title thumbnail createdBy slug")
+            .select("title thumbnail createdBy.createdAt slug")
             .limit(initPagination.limitRecord)
             .skip(initPagination.skip);
 
@@ -33,7 +33,9 @@ module.exports.getDetailBlog = async (req, res) => {
             status: "active"
         };
 
-        const blog = await Blog.findOne(find).select("title thumbnail content createdBy");
+        const blog = await Blog.findOne(find)
+            .select("title thumbnail content createdBy")
+            .populate({ path: "createdBy.account_id", select: "fullName" });
 
         res.json({ blog });
     } catch (error) {

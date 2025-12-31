@@ -138,7 +138,7 @@ module.exports.logout = (req, res) => {
 module.exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
     try {
-        const exitEmail = await Account.findOne({ email });
+        const exitEmail = await User.findOne({ email });
         if (!exitEmail) {
             return res.status(404).json({ message: "Email không tồn tại!" });
         }
@@ -173,13 +173,14 @@ module.exports.resetPassword = async (req, res) => {
         const record = await ForgotPassword.findOne({ email });
         if (!record)
             return res.status(400).json({ message: "OTP hết hạn hoặc không tồn tại!" });
-
+        
         const hashOtp = crypto.createHash("sha256").update(otp).digest("hex");
         if (hashOtp !== record.otp)
             return res.status(400).json({ message: "OTP không đúng!" });
 
         const hashPassword = await bcrypt.hash(newPassword, 10);
-        await Account.findOneAndUpdate(
+
+        await User.findOneAndUpdate(
             { email },
             { password: hashPassword }
         );

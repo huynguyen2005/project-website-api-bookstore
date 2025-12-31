@@ -24,5 +24,5 @@ module.exports = (app) => {
     app.use('/api/v1/carriers', carrierRoute);
     app.use('/api/v1/checkout', checkoutRoute);
     app.use('/api/v1/orders', authMiddleware.verifyToken, orderRoute);
-    app.use('/api/v1/users', authMiddleware.verifyToken,  userRoute);
+    app.use('/api/v1/my-profile', authMiddleware.verifyToken,  userRoute);
 };

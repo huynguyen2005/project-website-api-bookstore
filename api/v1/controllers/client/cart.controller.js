@@ -115,11 +115,16 @@ module.exports.updateCart = async (req, res) => {
 // [DELETE] /carts/:bookId
 module.exports.deleteBook = async (req, res) => {
     const bookId = req.params.bookId;
-    const cartId = req.cart._id;
+    const cartId = req.cart?._id;
+
     try {
         const cart = await Cart.findOneAndUpdate(
-            { _id: cartId },
-            { $pull: { books: { book_id: bookId } } },
+            { 
+                _id: cartId 
+            },
+            { 
+                $pull: { books: { book_id: bookId } } 
+            },
             { new: true }
         ).populate({
             path: "books.book_id",

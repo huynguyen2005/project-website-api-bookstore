@@ -38,7 +38,7 @@ module.exports.requestRefreshToken = (req, res) => {
         if (error) return res.status(401).json("adminRefreshToken bị sai hoặc hết hạn!");
 
         refreshTokens = refreshTokens.filter(token => token !== refreshToken);
-
+        
         const newAccessToken = authHelper.generateAccessToken(payload);
         const newRefreshToken = authHelper.generateRefreshToken(payload);
         refreshTokens.push(newRefreshToken);

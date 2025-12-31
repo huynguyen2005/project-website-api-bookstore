@@ -203,9 +203,6 @@ module.exports.callback = async (req, res) => {
         } else {
             order.paymentStatus = "FAILED";
         }
-
-
-
         await order.save();
 
         res.json({ message: "SUCCESS" });
@@ -215,7 +212,7 @@ module.exports.callback = async (req, res) => {
 };
 
 
-// [GET] /:orderId/thank-you
+// [GET] /checkout/:orderId/thank-you
 module.exports.thankYou = async (req, res) => {
     try {
         const order = await Order.findById(req.params.orderId)

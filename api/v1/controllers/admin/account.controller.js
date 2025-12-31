@@ -125,7 +125,7 @@ module.exports.createAccount = async (req, res) => {
 module.exports.editAccount = async (req, res) => {
     const accountId = req.params.id;
     const data = req.body;
-
+    delete data.password;
     try {
         const account = await Account.findById(accountId);
         if (!account) {
@@ -137,13 +137,6 @@ module.exports.editAccount = async (req, res) => {
         if (data.email) {
             const emailExit = await Account.findOne({ email: data.email, _id: { $ne: accountId } });
             if (emailExit) return res.status(401).json("Email đã tồn tại!");
-        }
-        if (data.password) {
-            const hashed = await bcrypt.hash(data.password, 10);
-            data.password = hashed;
-        }
-        if (!data.role_id) {
-            data.role_id = null;
         }
         await Account.updateOne({ _id: accountId }, {
             ...data,

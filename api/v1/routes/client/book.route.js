@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../../controllers/client/book.controller");
 
-router.get("/search", controller.searchBook);
+router.get("/", controller.index);
 router.get("/featured", controller.getFeaturedBooks);
 router.get("/sale", controller.getSaleBooks);
 router.get("/:slug", controller.getBookDetail);

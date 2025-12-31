@@ -6,6 +6,6 @@ router.get("/", controller.getCart);
 router.post("/:bookId", controller.addToCart);
 router.put("/:bookId", controller.updateCart);
 router.delete("/:bookId", controller.deleteBook);
-router.patch("/:bookId/select", controller.toggleSelectBook);
+router.put("/:bookId/select", controller.toggleSelectBook);
 
 module.exports = router;
